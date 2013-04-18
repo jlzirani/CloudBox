@@ -1,0 +1,12 @@
+Client/build/
+Client/build.xml
+Client/manifest.mf
+Client/nbproject/
+cloudBoxLib/build/
+cloudBoxLib/build.xml
+cloudBoxLib/manifest.mf
+cloudBoxLib/nbproject/
+Server/build/
+Server/build.xml
+Server/manifest.mf
+Server/nbproject/
