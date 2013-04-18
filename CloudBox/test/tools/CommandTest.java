@@ -170,6 +170,28 @@ public class CommandTest {
         assertArrayEquals(test,instance.serializable() );
     }
     
+        public void testSerializableFile() {
+        Command instance = new Command(Command.eType.FILE);
+        instance.setPath("/");
+        instance.setDate(59L);
+        instance.setLength(28L);
+        
+        /*byte[] test = new byte[26];
+        byte[] command = convert.intToBytes(Command.eType.PROPFILE.ordinal());
+        System.arraycopy(command, 0, test, 0, 4);
+        System.arraycopy(convert.intToBytes(1), 0, test, 4, 4);
+        System.arraycopy("/".getBytes(), 0, test, 8, 1);
+        test[9] = (byte)1;
+        System.arraycopy(convert.longToBytes(59L), 0, test, 10, 8);
+        System.arraycopy(convert.longToBytes(28L), 0, test, 18, 8);
+        
+        assertArrayEquals(test,instance.serializable() );
+        instance.setIsDir(false);
+        test[9] = (byte)0;
+        assertArrayEquals(test,instance.serializable() );*/
+        fail("@TODO");
+    }
+    
     
     /**
      * Test of serializable method, of class Command.
@@ -182,6 +204,7 @@ public class CommandTest {
         testSerialGetCommand(Command.eType.GETPROPFILE);
         testSerializableIndex();
         testSerializablePropFile();
+        testSerializableFile();
     }
     
     public void testUnSerialGetCommand(Command.eType f_type) {

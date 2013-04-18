@@ -20,6 +20,9 @@ package cloudbox.actors.file;
 import cloudbox.actors.Actor;
 import cloudbox.actors.Message;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import tools.Command;
@@ -135,10 +138,30 @@ public class FileActor extends Actor {
         }
     }
     
-    
     public void getFile(Message f_msg) {
-        
-        
+        FileInputStream inputStream = null;
+        try {
+            Command query = f_msg.getCmd();
+            File file = getFile( query.getPath() );
+            byte[] contentFile = new byte[(int)file.length()];
+            inputStream = new FileInputStream(file);
+            inputStream.read(contentFile);
+            query.setLength(file.length());
+            query.setDate(file.lastModified());
+            query.setData(contentFile);
+            
+            
+        } catch (FileNotFoundException ex) {
+            logger.log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            logger.log(Level.SEVERE, null, ex);
+        }  finally {
+            try {
+                inputStream.close();
+            } catch (IOException ex) {
+                logger.log(Level.SEVERE, null, ex);
+            }
+        }
     }   
         
     @Override

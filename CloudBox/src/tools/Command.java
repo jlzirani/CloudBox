@@ -43,6 +43,7 @@ public class Command {
     private long m_date = 0; // used by PROPFILE and FILE
     private ArrayList Index = null; // used by INDEX
     private int m_sizeIndex = 4;
+    private byte[] m_data = null;
     
     
     public Command( eType f_Type ) {
@@ -85,7 +86,15 @@ public class Command {
     public void setDate(long m_date) {
         this.m_date = m_date;
     }
+    
+    public byte[] getData() {
+        return m_data;
+    }
 
+    public void setData(byte[] m_data) {
+        this.m_data = m_data;
+    }
+    
     public ArrayList getIndex() {
         return Index;
     }
@@ -176,6 +185,21 @@ public class Command {
         return result;
     }
     
+    private byte[] serializeFile() {
+        // {FILE, PATH, DATE, LENGTH, FILECONTENT}
+        byte[] vecPath = serializePath();
+        byte[] result = new byte[vecPath.length+4+16+(int)m_length];
+        System.arraycopy(serializeCmd(), 0, result, 0, 4);
+        System.arraycopy(vecPath, 0, result, 4, vecPath.length);        
+        int index = vecPath.length + 4;
+        System.arraycopy(convert.longToBytes(m_date),0,result,index,8);
+        index += 8 ;
+        System.arraycopy(convert.longToBytes(m_length),0,result,index,8);
+        index += 8;
+        System.arraycopy(m_data,0,result,index,(int)m_length);
+        return null;
+    }
+    
     public byte[] serializable()
     {
         byte[] result = null;
@@ -186,6 +210,7 @@ public class Command {
             case GETPROPFILE: result = serializeGet(); break;
             case INDEX: result = serializeIndex(); break;
             case PROPFILE: result = serualizablePropFile(); break;
+            case FILE: result = serializeFile();
         }
         
         return result;       
