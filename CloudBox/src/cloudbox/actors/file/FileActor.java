@@ -58,7 +58,7 @@ public class FileActor extends Actor {
             result.AddIndexFile( file.getName(), file.lastModified() );            
         }
         
-        f_msg.get_from().push_message(new Message(this, result));
+        f_msg.get_from().pushCmd(this, result);
     }
     
     public Command constructPropFile( String strFilePath ) {
@@ -105,12 +105,11 @@ public class FileActor extends Actor {
             {
                 Command requestFile = new Command(eType.GETPROPFILE);
                 requestFile.setPath(strPathFile);
-                f_msg.get_from().push_message(new Message(this, requestFile));
+                f_msg.get_from().pushCmd(this, requestFile);
             }
             
             if(file.exists() && file.lastModified() > it.m_date) {
-                Message msg = new Message(this, constructPropFile(strPathFile));
-                f_msg.get_from().push_message(msg);
+                f_msg.get_from().pushCmd(this, constructPropFile(strPathFile));
             }
        }
     }
@@ -119,7 +118,7 @@ public class FileActor extends Actor {
         Command query = f_msg.getCmd();
         Message msg = new Message(this, constructPropFile(query.getPath()));
         
-        f_msg.get_from().push_message(msg);
+        f_msg.get_from().pushMsg(msg);
     }
     
     public void PropFile(Message f_msg) {
@@ -130,12 +129,12 @@ public class FileActor extends Actor {
             if(query.getIsDir()){
                 Command cmd = new Command(Command.eType.GETINDEX);
                 cmd.setPath(query.getPath());
-                f_msg.get_from().push_message(new Message(this, cmd));
+                f_msg.get_from().pushCmd(this, cmd);
             }
             else{
                 Command cmd = new Command(Command.eType.GETFILE);
                 cmd.setPath(query.getPath());
-                f_msg.get_from().push_message(new Message(this, cmd));
+                f_msg.get_from().pushCmd(this, cmd);
             }
         }
     }
@@ -163,7 +162,7 @@ public class FileActor extends Actor {
          
             parent.setLastModified(parentDate);
             
-            f_msg.get_from().push_message(new Message(this, answer));
+            f_msg.get_from().pushCmd(this, answer);
             
         } catch (FileNotFoundException ex) {
             logger.log(Level.SEVERE, null, ex);
@@ -207,7 +206,7 @@ public class FileActor extends Actor {
     public void run() {
         while(true){
             wait_message();
-            Message msg = get_first_message();
+            Message msg = getFirstMsg();
             
             logger.log(Level.INFO, "processing message : {0} Path: {1}", 
                   new Object[]{msg.getCmd().getType(), msg.getCmd().getPath()});

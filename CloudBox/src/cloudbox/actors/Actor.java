@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package cloudbox.actors;
 
 import java.util.ArrayList;
@@ -22,50 +21,69 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import tools.Command;
 
-public abstract class Actor implements Runnable{
+public abstract class Actor implements Runnable {
+
     final static private Logger logger = Logger.getLogger(Actor.class.getName());
     final protected ArrayList m_vecActors = new ArrayList();
     final private Queue m_vecMessage = new LinkedList();
-    
+
     public void attach(Actor f_newActor) {
-        synchronized(m_vecActors) {
+        synchronized (m_vecActors) {
             m_vecActors.add(f_newActor);
         }
     }
-    public void dettach(Actor f_Actor) { 
-        synchronized(m_vecActors){
+
+    public void dettach(Actor f_Actor) {
+        synchronized (m_vecActors) {
             m_vecActors.remove(f_Actor);
         }
     }
-    
-    public void push_message(Message o) {
-        synchronized(m_vecMessage) {
-            m_vecMessage.add(o); 
+
+    public void notifyMsg(Message f_msg) {
+        synchronized (m_vecActors) {
+            for (Object o : m_vecActors) {
+                ((Actor) o).pushMsg(f_msg);
+            }
+        }
+    }
+
+    public void notifyCmd(Command f_cmd) {
+        notifyMsg(new Message(this, f_cmd));
+    }
+
+    public void pushMsg(Message f_msg) {
+        synchronized (m_vecMessage) {
+            m_vecMessage.add(f_msg);
             m_vecMessage.notify();
         }
     }
+
+    public void pushCmd(Actor f_from, Command f_cmd) {
+        pushMsg( new Message(f_from, f_cmd) ); 
+    }    
     
-    protected Message get_first_message() {
+    
+    protected Message getFirstMsg() {
         Message msg;
-        synchronized(m_vecMessage) {
+        synchronized (m_vecMessage) {
             msg = (Message) m_vecMessage.poll();
         }
         return msg;
     }
-    
-    protected Message top_message() {
+
+    protected Message topMsg() {
         Message msg;
-        synchronized(m_vecMessage) {
+        synchronized (m_vecMessage) {
             msg = (Message) m_vecMessage.peek();
         }
         return msg;
     }
-    
+
     protected void wait_message() {
-        if(m_vecMessage.isEmpty())
-        {
-            synchronized(m_vecMessage){
+        if (m_vecMessage.isEmpty()) {
+            synchronized (m_vecMessage) {
                 try {
                     m_vecMessage.wait();
                 } catch (InterruptedException ex) {
@@ -74,10 +92,10 @@ public abstract class Actor implements Runnable{
             }
         }
     }
-    
-    
+
     abstract public void start();
+
     abstract public void join() throws InterruptedException;
+
     abstract public void interrupt();
-    
 }

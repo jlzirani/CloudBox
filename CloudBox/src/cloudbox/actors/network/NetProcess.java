@@ -21,7 +21,6 @@ import cloudbox.actors.Message;
 import cloudbox.actors.file.FileActor;
 import java.io.IOException;
 import tools.Command;
-import tools.Command.eType;
 import tools.network.NetHandler;
 
 
@@ -50,7 +49,7 @@ public class NetProcess extends Thread{
       
             while(true) {
                 Command cmd = m_netHandler.getCommand();
-                m_actorFile.push_message(new Message(m_parent, cmd));
+                m_parent.notifyCmd( cmd );
             }
         } catch (IOException ex) {
             ex.printStackTrace();

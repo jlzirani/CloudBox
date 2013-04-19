@@ -50,7 +50,7 @@ public class Peer extends Actor {
         try {
             while(true) {
                     wait_message();
-                    Message msg = get_first_message();
+                    Message msg = getFirstMsg();
                     m_netHandler.sendCommand(msg.getCmd());
             }
         } catch (IOException ex) {
