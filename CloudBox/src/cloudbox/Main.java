@@ -35,12 +35,15 @@ public class Main {
 
         if("server".equals(args[0]))
         {
+            logger.log(Level.INFO, "Starting server");
             Server server = new Server(file);
             server.run();
         }
 
         if("client".equals(args[0]))
         {
+            
+            logger.log(Level.INFO, "Starting client");
             try {
                 Peer client = new Peer(file, "localhost", (short)1337);
                 client.run();

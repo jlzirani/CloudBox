@@ -171,25 +171,21 @@ public class CommandTest {
     }
     
         public void testSerializableFile() {
+            // {COMMAND, PATH, 
         Command instance = new Command(Command.eType.FILE);
         instance.setPath("/");
         instance.setDate(59L);
-        instance.setLength(28L);
+        instance.setData(new byte[] {0,0});
         
-        /*byte[] test = new byte[26];
-        byte[] command = convert.intToBytes(Command.eType.PROPFILE.ordinal());
+        byte[] test = new byte [27];
+        byte[] command = convert.intToBytes(Command.eType.FILE.ordinal());
         System.arraycopy(command, 0, test, 0, 4);
         System.arraycopy(convert.intToBytes(1), 0, test, 4, 4);
         System.arraycopy("/".getBytes(), 0, test, 8, 1);
-        test[9] = (byte)1;
-        System.arraycopy(convert.longToBytes(59L), 0, test, 10, 8);
-        System.arraycopy(convert.longToBytes(28L), 0, test, 18, 8);
-        
-        assertArrayEquals(test,instance.serializable() );
-        instance.setIsDir(false);
-        test[9] = (byte)0;
-        assertArrayEquals(test,instance.serializable() );*/
-        fail("@TODO");
+        System.arraycopy(convert.longToBytes(59L), 0, test, 9, 8);
+        System.arraycopy(convert.longToBytes(2), 0, test, 17, 8);
+        System.arraycopy(new byte[] {0,0}, 0, test, 25, 2);
+        assertArrayEquals( test, instance.serializable() );
     }
     
     
@@ -263,6 +259,26 @@ public class CommandTest {
         assertEquals(59L, cmd.getDate());
         assertEquals(28L, cmd.getLength());
     }
+
+    public void testUnSerialFile() {
+        byte[] test = new byte [27];
+        byte[] command = convert.intToBytes(Command.eType.FILE.ordinal());
+        System.arraycopy(command, 0, test, 0, 4);
+        System.arraycopy(convert.intToBytes(1), 0, test, 4, 4);
+        System.arraycopy("/".getBytes(), 0, test, 8, 1);
+        System.arraycopy(convert.longToBytes(59L), 0, test, 9, 8);
+        System.arraycopy(convert.longToBytes(2), 0, test, 17, 8);
+        System.arraycopy(new byte[] {0,0}, 0, test, 25, 2);
+        
+        
+        Command cmd = Command.unserializable(test);
+        
+        assertEquals(Command.eType.FILE, cmd.getType());
+        assertEquals("/", cmd.getPath());
+        assertEquals(59L, cmd.getDate());
+        assertEquals(2L, cmd.getLength());
+        assertArrayEquals(new byte[] {0,0}, cmd.getData());
+    }
     
     
     /**
@@ -275,5 +291,6 @@ public class CommandTest {
         testUnSerialGetCommand(Command.eType.GETPROPFILE);
         testUnSerialIndex();
         testUnSerialPropFile();
+        testUnSerialFile();
     }
 }

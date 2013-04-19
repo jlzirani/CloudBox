@@ -22,7 +22,9 @@ import cloudbox.actors.Message;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import tools.Command;
@@ -142,14 +144,26 @@ public class FileActor extends Actor {
         FileInputStream inputStream = null;
         try {
             Command query = f_msg.getCmd();
+            Command answer = new Command(eType.FILE);
+            answer.setPath(query.getPath());
+            
             File file = getFile( query.getPath() );
+            File parent = file.getParentFile();
+            
+            long parentDate = parent.lastModified() > query.getDate() ? 
+                                parent.lastModified() : query.getDate();
+            
             byte[] contentFile = new byte[(int)file.length()];
             inputStream = new FileInputStream(file);
             inputStream.read(contentFile);
-            query.setLength(file.length());
-            query.setDate(file.lastModified());
-            query.setData(contentFile);
+            file.setLastModified(query.getDate());
+            answer.setLength(file.length());
+            answer.setDate(file.lastModified());
+            answer.setData(contentFile);
+         
+            parent.setLastModified(parentDate);
             
+            f_msg.get_from().push_message(new Message(this, answer));
             
         } catch (FileNotFoundException ex) {
             logger.log(Level.SEVERE, null, ex);
@@ -162,7 +176,32 @@ public class FileActor extends Actor {
                 logger.log(Level.SEVERE, null, ex);
             }
         }
-    }   
+    }
+    
+    private void File( Message f_msg ) {
+
+        OutputStream outputStream = null;
+        try {
+            Command query = f_msg.getCmd();
+            File file = getFile( query.getPath() );
+            outputStream = new FileOutputStream(file);
+            outputStream.write(query.getData());
+            
+            file.setLastModified(query.getDate());
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }  finally {
+            try {
+                outputStream.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+            
+            
+    }
         
     @Override
     public void run() {
@@ -178,6 +217,7 @@ public class FileActor extends Actor {
                 case GETFILE: getFile(msg); break;
                 case INDEX: index(msg); break;
                 case PROPFILE: PropFile(msg); break;
+                case FILE: File(msg); break;
                 default: 
                     logger.log(Level.WARNING, "Message {0} not recognized",
                             msg.getCmd().getType() );

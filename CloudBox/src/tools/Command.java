@@ -18,10 +18,12 @@
 package tools;
 
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class Command {
-
+    static final private Logger logger = Logger.getLogger(Command.class.getName());
 
     static public enum eType { GETINDEX, INDEX, GETFILE, FILE, GETPROPFILE, 
         PROPFILE };
@@ -188,16 +190,16 @@ public class Command {
     private byte[] serializeFile() {
         // {FILE, PATH, DATE, LENGTH, FILECONTENT}
         byte[] vecPath = serializePath();
-        byte[] result = new byte[vecPath.length+4+16+(int)m_length];
+        byte[] result = new byte[vecPath.length+4+16+m_data.length];
         System.arraycopy(serializeCmd(), 0, result, 0, 4);
         System.arraycopy(vecPath, 0, result, 4, vecPath.length);        
         int index = vecPath.length + 4;
         System.arraycopy(convert.longToBytes(m_date),0,result,index,8);
         index += 8 ;
-        System.arraycopy(convert.longToBytes(m_length),0,result,index,8);
+        System.arraycopy(convert.longToBytes(m_data.length),0,result,index,8);
         index += 8;
-        System.arraycopy(m_data,0,result,index,(int)m_length);
-        return null;
+        System.arraycopy(m_data,0,result,index,m_data.length);
+        return result;
     }
     
     public byte[] serializable()
@@ -210,7 +212,8 @@ public class Command {
             case GETPROPFILE: result = serializeGet(); break;
             case INDEX: result = serializeIndex(); break;
             case PROPFILE: result = serualizablePropFile(); break;
-            case FILE: result = serializeFile();
+            case FILE: result = serializeFile(); break;
+            default: logger.log(Level.WARNING, "Type non recognized");
         }
         
         return result;       
@@ -250,6 +253,18 @@ public class Command {
         index +=8;
         m_length = convert.bytesToLong(f_data, index);
     }
+
+    private void unserializeFile(byte[] f_data) {
+        // {FILE, PATH, DATE, LENGTH, FILECONTENT}
+        int index = unserializablePath(f_data);
+        m_date = convert.bytesToLong(f_data, index);
+        index += 8;
+        m_length = convert.bytesToLong(f_data, index);
+        index +=8;
+        
+        m_data = new byte[(int)m_length];
+        System.arraycopy(f_data, index, m_data, 0, (int)m_length);
+    }
     
     static public Command unserializable( byte[] f_data ) {
         byte[] vecType = new byte[4];
@@ -263,6 +278,8 @@ public class Command {
             case GETPROPFILE: cmd.unserializablePath( f_data ); break;
             case INDEX: cmd.unserializeIndex(f_data); break;
             case PROPFILE: cmd.unserualizablePropFile( f_data ); break;
+            case FILE: cmd.unserializeFile(f_data); break;
+            default: logger.log(Level.WARNING, "Type non recognized");
         }
               
         
