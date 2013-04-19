@@ -249,5 +249,4 @@ public class FileActor extends Actor {
         if(m_thread != null)
             m_thread.interrupt();
     }
-
 }
