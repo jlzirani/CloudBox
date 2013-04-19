@@ -45,6 +45,7 @@ public class Server extends Actor{
             while(true) {
                 Socket client = socket.accept();
                 Peer peer = new Peer(m_fileActor, client);
+                peer.attach(m_fileActor);
                 peer.start();                
             }
             

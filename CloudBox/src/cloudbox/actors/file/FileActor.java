@@ -37,6 +37,7 @@ public class FileActor extends Actor {
     final static private Logger logger = Logger.getLogger(FileActor.class.getName());
     
     public FileActor(String f_strRootPath) {
+        logger.log(Level.INFO, "Watching dir {0}", f_strRootPath);
         m_strRootPath = f_strRootPath;
         File root = new File(m_strRootPath);
         if(!root.exists())

@@ -46,6 +46,7 @@ public class Main {
             logger.log(Level.INFO, "Starting client");
             try {
                 Peer client = new Peer(file, "localhost", (short)1337);
+                client.attach(file);
                 client.run();
             } catch (java.net.ConnectException ex) {
                 logger.log(Level.SEVERE, "Connection refused");
