@@ -125,18 +125,30 @@ public class FileActor extends Actor {
     public void PropFile(Message f_msg) {
         Command query = f_msg.getCmd();
         File file = getFile( query.getPath());
+        Command reponse = null; 
+       
+        if(!file.exists())
+        {
+            if(query.getIsDir()) {
+                file.mkdir();
+                reponse = new Command(Command.eType.GETINDEX);
+                file.setLastModified(query.getDate());
+            }
+            else 
+            {   reponse = new Command(Command.eType.GETFILE);   }
+        }
+        else {
+            if(file.lastModified() < query.getDate()) {
+                if(query.getIsDir())
+                {   reponse = new Command(Command.eType.GETINDEX);  }
+                else
+                {   reponse = new Command(Command.eType.GETFILE);   }
+            }
+        }
         
-        if(file.lastModified() < query.getDate()) {
-            if(query.getIsDir()){
-                Command cmd = new Command(Command.eType.GETINDEX);
-                cmd.setPath(query.getPath());
-                f_msg.get_from().pushCmd(this, cmd);
-            }
-            else{
-                Command cmd = new Command(Command.eType.GETFILE);
-                cmd.setPath(query.getPath());
-                f_msg.get_from().pushCmd(this, cmd);
-            }
+        if(reponse != null) {
+            reponse.setPath(query.getPath());
+            f_msg.get_from().pushCmd(this, reponse);
         }
     }
     
