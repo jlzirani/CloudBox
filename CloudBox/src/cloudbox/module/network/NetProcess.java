@@ -15,13 +15,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package cloudbox.actors.network;
+package cloudbox.module.network;
 
-import cloudbox.actors.Message;
-import cloudbox.actors.file.FileActor;
+import cloudbox.module.Message;
+import cloudbox.module.file.FileActor;
 import java.io.IOException;
 import tools.Command;
-import tools.network.NetHandler;
 
 
 public class NetProcess extends Thread{

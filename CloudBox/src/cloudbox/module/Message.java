@@ -15,16 +15,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package cloudbox.actors;
+package cloudbox.module;
 
 import tools.Command;
 
 
 public class Message {
-    private Actor m_from;
-    private Command m_cmd;
+    //private AModule m_from;
+    private IModule m_from = null;
+    private Command m_cmd = null;
     
-    public Message(Actor f_from, Command f_cmd){
+    public Message() {}
+    
+    public Message(IModule f_from, Command f_cmd){
         m_from = f_from;
         m_cmd = f_cmd;
     }
@@ -32,7 +35,7 @@ public class Message {
     public void setCmd(Command f_cmd) { m_cmd = f_cmd; }
     public Command getCmd() { return m_cmd; }
     
-    public void set_from(Actor f_from) { m_from = f_from; }
-    public Actor get_from() { return m_from; }
+    public void set_from(AModule f_from) { m_from = f_from; }
+    public IModule get_from() { return m_from; }
     
 }

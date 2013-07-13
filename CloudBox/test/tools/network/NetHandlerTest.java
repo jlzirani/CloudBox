@@ -16,6 +16,7 @@
  */
 package tools.network;
 
+import cloudbox.module.network.NetHandler;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;

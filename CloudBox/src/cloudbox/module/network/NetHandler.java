@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tools.network;
+package cloudbox.module.network;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;

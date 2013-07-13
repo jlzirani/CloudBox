@@ -17,9 +17,9 @@
 
 package cloudbox;
 
-import cloudbox.actors.Server;
-import cloudbox.actors.file.FileActor;
-import cloudbox.actors.network.Peer;
+import cloudbox.module.Server;
+import cloudbox.module.file.FileActor;
+import cloudbox.module.network.Peer;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -40,7 +40,7 @@ public class Main {
             server.run();
         }
 
-        if("client".equals(args[0]))
+       /* if("client".equals(args[0]))
         {
             
             logger.log(Level.INFO, "Starting client");
@@ -53,7 +53,7 @@ public class Main {
             } catch (IOException ex) {
                 logger.log(Level.SEVERE,null, ex);
             }
-        }
+        }*/
         file.interrupt(); // we kill the file thread
     }
 }

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package cloudbox.actors;
+package cloudbox.module;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -23,19 +23,19 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import tools.Command;
 
-public abstract class Actor implements Runnable {
+public abstract class AModule implements Runnable, IModule {
 
-    final static private Logger logger = Logger.getLogger(Actor.class.getName());
+    final static private Logger logger = Logger.getLogger(AModule.class.getName());
     final protected ArrayList m_vecActors = new ArrayList();
     final private Queue m_vecMessage = new LinkedList();
 
-    public void attach(Actor f_newActor) {
+    public void attach(AModule f_newActor) {
         synchronized (m_vecActors) {
             m_vecActors.add(f_newActor);
         }
     }
 
-    public void dettach(Actor f_Actor) {
+    public void dettach(AModule f_Actor) {
         synchronized (m_vecActors) {
             m_vecActors.remove(f_Actor);
         }
@@ -44,7 +44,7 @@ public abstract class Actor implements Runnable {
     public void notifyMsg(Message f_msg) {
         synchronized (m_vecActors) {
             for (Object o : m_vecActors) {
-                ((Actor) o).pushMsg(f_msg);
+                ((AModule) o).pushMsg(f_msg);
             }
         }
     }
@@ -60,7 +60,7 @@ public abstract class Actor implements Runnable {
         }
     }
 
-    public void pushCmd(Actor f_from, Command f_cmd) {
+    public void pushCmd(AModule f_from, Command f_cmd) {
         pushMsg( new Message(f_from, f_cmd) ); 
     }    
     

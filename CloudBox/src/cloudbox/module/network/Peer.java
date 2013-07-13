@@ -14,36 +14,30 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package cloudbox.actors.network;
+package cloudbox.module.network;
 
-import cloudbox.actors.Actor;
-import cloudbox.actors.Message;
-import cloudbox.actors.file.FileActor;
+import cloudbox.module.Message;
+import cloudbox.module.file.FileActor;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import tools.network.NetHandler;
 
-public class Peer extends Actor {
+public class Peer implements Runnable {
     FileActor m_actorFile;
     NetHandler m_netHandler;
     NetProcess m_thdNet;
     Thread m_thread;
     
-    public Peer(FileActor f_actorFile, String server, short port) throws IOException {
-        m_actorFile = f_actorFile;
-        Socket sockClient = new Socket(server,port);
-        m_netHandler = new NetHandler(sockClient);
+    public Peer(NetHandler f_netHandler) throws IOException {
+        m_netHandler = f_netHandler;
     }
     
     public Peer(FileActor f_actorFile, Socket f_sockClient) throws IOException {
         m_actorFile = f_actorFile;
         m_netHandler = new NetHandler(f_sockClient);
     }
-
     
-    @Override
     public void run() {
         m_thdNet = new NetProcess(this, m_actorFile, m_netHandler);
         m_thdNet.start();
@@ -59,18 +53,15 @@ public class Peer extends Actor {
         m_thdNet.interrupt();
     }
 
-    @Override
     public void start() {
         m_thread = new Thread(this);
         m_thread.start();
     }
 
-    @Override
     public void join() throws InterruptedException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    @Override
     public void interrupt() {
     }
 

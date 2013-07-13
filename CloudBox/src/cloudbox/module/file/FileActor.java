@@ -15,10 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package cloudbox.actors.file;
+package cloudbox.module.file;
 
-import cloudbox.actors.Actor;
-import cloudbox.actors.Message;
+import cloudbox.module.AModule;
+import cloudbox.module.Message;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -31,7 +31,7 @@ import tools.Command;
 import tools.Command.cIndex;
 import tools.Command.eType;
 
-public class FileActor extends Actor {
+public class FileActor extends AModule {
     private String m_strRootPath;
     private Thread m_thread;
     final static private Logger logger = Logger.getLogger(FileActor.class.getName());
