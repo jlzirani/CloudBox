@@ -78,7 +78,7 @@ public class UpStream extends Thread {
                     m_netHandler.sendCommand(msg.getCmd());
             }
         } catch (IOException ex) {
-                Logger.getLogger(Peer.class.getName()).log(Level.SEVERE, null, ex);
+                logger.log(Level.SEVERE, null, ex);
         }
     }
  

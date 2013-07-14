@@ -20,32 +20,47 @@ package cloudbox.module.file;
 import cloudbox.module.IModule;
 import cloudbox.module.IObserver;
 import cloudbox.module.Message;
+import java.util.ArrayList;
 
 
 public class FileFacade implements IModule {
 
     private ProcessCmd m_processCmd;
+    //private SyncFile m_syncFile;
+    final protected ArrayList m_vecActors = new ArrayList();
+
+    public FileFacade(String string) {
+        m_processCmd = new ProcessCmd(this, string);
+        //m_syncFile = new SyncFile(this, string);    
+    }
     
-    @Override
+   @Override
     public void attach(IObserver f_newObs) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        synchronized (m_vecActors) {
+            m_vecActors.add(f_newObs);
+        }
     }
 
     @Override
     public void dettach(IObserver f_newObs) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+           synchronized (m_vecActors) {
+            m_vecActors.remove(f_newObs);
+        }    
     }
 
     @Override
     public void notifyObs(Message f_msg) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        synchronized (m_vecActors) {
+            for (Object o : m_vecActors) {
+                ((IObserver) o).notify(f_msg);
+            }
+        }
     }
 
     @Override
     public void notify(Message f_msg) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+       m_processCmd.pushMsg(f_msg);
     }
-
     
     public FileFacade( IModule f_facade, String f_strRootPath ) {
         m_processCmd = new ProcessCmd(f_facade, f_strRootPath);
@@ -54,6 +69,11 @@ public class FileFacade implements IModule {
     @Override
     public void start() {
         m_processCmd.start();
+    }
+    
+    @Override
+    public void stop() {
+        m_processCmd.interrupt();
     }
     
 }

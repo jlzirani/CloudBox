@@ -44,6 +44,13 @@ public class ProcessCmd extends Thread {
     private IModule m_facade;
     private String m_strRootPath;
     
+    protected void pushMsg(Message f_msg) {
+        synchronized (m_vecMessage) {
+            m_vecMessage.add(f_msg);
+            m_vecMessage.notify();
+        }        
+    }
+    
     protected Message getFirstMsg() {
         Message msg;
         synchronized (m_vecMessage) {
@@ -74,14 +81,14 @@ public class ProcessCmd extends Thread {
     
     @Override
     public void run() {
-        while(true){
+        while(!this.isInterrupted()){
             wait_message();
             Message msg = getFirstMsg();
 
             logger.log(Level.INFO, "processing message : {0} Path: {1}", 
                   new Object[]{msg.getCmd().getType(), msg.getCmd().getPath()});
-            
-            
+
+
             switch(msg.getCmd().getType()){
                 case GETINDEX: getIndex(msg); break;
                 case GETPROPFILE: getPropFile(msg); break;
@@ -93,9 +100,8 @@ public class ProcessCmd extends Thread {
                     logger.log(Level.WARNING, "Message {0} not recognized",
                             msg.getCmd().getType() );
             }
-           
-        }
 
+        }
     }
     
    public ProcessCmd(IModule f_facade, String f_strRootPath){

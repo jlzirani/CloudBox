@@ -14,47 +14,47 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package cloudbox.module.network;
 
-import cloudbox.module.Message;
-import cloudbox.module.file.FileActor;
+import cloudbox.module.file.FileFacade;
 import java.io.IOException;
-import tools.Command;
+import java.net.ServerSocket;
+import java.net.Socket;
 
+/**
+ *
+ * @author jlzirani
+ */
 
-public class NetProcess extends Thread{
-    private Peer m_parent;
-    private NetHandler m_netHandler;
-    private FileActor m_actorFile;
+public class Server {
+    private FileFacade m_fileActor;
+    private int m_iPort;
     
-    public NetProcess( Peer f_parent, FileActor f_actorFile, NetHandler f_netHandler ) {
-        m_netHandler = f_netHandler;
-        m_actorFile = f_actorFile;
-        m_parent = f_parent;
+    public Server(FileFacade f_fileActor, int f_iPort) {
+        m_fileActor= f_fileActor;
+        m_iPort = f_iPort;
     }
     
-    private void AskPropFile(String f_strPath) throws IOException{
-        Command cmd = new Command(Command.eType.GETPROPFILE);
-        cmd.setPath(f_strPath);
-        m_netHandler.sendCommand(cmd);        
-    }
+    public Server(FileFacade f_fileActor) {
+        m_fileActor= f_fileActor;
+        m_iPort = 1337;
+    }   
     
-    
-    @Override
-    public void run() {
+        public void run() {
         try {
-            AskPropFile("/");
-      
+            ServerSocket socket = new ServerSocket(m_iPort);
+            socket.getReuseAddress();
             while(true) {
-                Command cmd = m_netHandler.getCommand();
-                m_parent.notifyCmd( cmd );
+                Socket client = socket.accept();
+                NetFacade peer = new NetFacade(client);
+//                peer.attach(m_fileActor);
+                peer.start();                
             }
+            
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-        
+    
+    
     }
-    
-    
-}
+    }

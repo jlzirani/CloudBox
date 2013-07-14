@@ -17,9 +17,9 @@
 
 package cloudbox;
 
-import cloudbox.module.Server;
-import cloudbox.module.file.FileActor;
-import cloudbox.module.network.Peer;
+import cloudbox.module.network.Server;
+import cloudbox.module.file.FileFacade;
+import cloudbox.module.network.NetFacade;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,7 +30,7 @@ public class Main {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws InterruptedException {
-        FileActor file = new FileActor(System.getProperty("user.home")+"/CloudBox/"+args[0]);
+        FileFacade file = new FileFacade(System.getProperty("user.home")+"/CloudBox/"+args[0]);
         file.start();
 
         if("server".equals(args[0]))
@@ -40,20 +40,19 @@ public class Main {
             server.run();
         }
 
-       /* if("client".equals(args[0]))
+        if("client".equals(args[0]))
         {
             
             logger.log(Level.INFO, "Starting client");
             try {
-                Peer client = new Peer(file, "localhost", (short)1337);
+                NetFacade client = new NetFacade(file, "localhost", (short)1337);
                 client.attach(file);
-                client.run();
-            } catch (java.net.ConnectException ex) {
-                logger.log(Level.SEVERE, "Connection refused");
-            } catch (IOException ex) {
+                client.start();
+            }  catch (IOException ex) {
                 logger.log(Level.SEVERE,null, ex);
             }
-        }*/
-        file.interrupt(); // we kill the file thread
+        }
+        file.stop();
+        //file.interrupt(); // we kill the file thread
     }
 }

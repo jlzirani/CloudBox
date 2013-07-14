@@ -19,7 +19,7 @@ package cloudbox.module.network;
 import cloudbox.module.IModule;
 import cloudbox.module.IObserver;
 import cloudbox.module.Message;
-import cloudbox.module.file.FileActor;
+import cloudbox.module.file.FileFacade;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -59,15 +59,29 @@ public class NetFacade implements IModule {
     }
 
     
-    public NetFacade(FileActor f_actorFile, Socket f_sockClient) throws IOException {
+    public NetFacade(Socket f_sockClient) throws IOException {
         NetHandler netHandler = new NetHandler(f_sockClient);
         m_downStream = new DownStream(this, netHandler);
         m_upStream = new UpStream(netHandler);
     }
     
+    public NetFacade(FileFacade file, String localhost, short s) throws IOException {
+        Socket client = new Socket(localhost, s);
+        NetHandler netHandler = new NetHandler(client);
+        m_downStream = new DownStream(this, netHandler);
+        m_upStream = new UpStream(netHandler);
+    }
+    
+    @Override
     public void start() {
         m_downStream.start();
         m_upStream.start();
+    }
+
+    @Override
+    public void stop() {
+        m_downStream.interrupt();
+        m_upStream.interrupt();
     }
     
     
