@@ -29,7 +29,7 @@ public class Main {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, IOException {
         FileFacade file = new FileFacade(System.getProperty("user.home")+"/CloudBox/"+args[0]);
         file.start();
 
@@ -45,14 +45,20 @@ public class Main {
             
             logger.log(Level.INFO, "Starting client");
             try {
-                NetFacade client = new NetFacade(file, "localhost", (short)1337);
+                NetFacade client = new NetFacade( "localhost", (short)1337);
+                
                 client.attach(file);
+                file.attach(client);
+                
                 client.start();
+                
+                client.join();
+                
             }  catch (IOException ex) {
                 logger.log(Level.SEVERE,null, ex);
             }
         }
-        file.stop();
+        //file.stop();
         //file.interrupt(); // we kill the file thread
     }
 }
