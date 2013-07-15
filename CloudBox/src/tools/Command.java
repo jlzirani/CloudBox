@@ -256,7 +256,7 @@ public class Command {
     }
 
     private void unserializeFile(byte[] f_data) {
-        // {FILE, PATH, DATE, LENGTH, FILECONTENT}
+        // {FILE, PATH, DATE, LENGTH, FILECONTENT, DELETE}
         int index = unserializablePath(f_data);
         m_date = convert.bytesToLong(f_data, index);
         index += 8;
