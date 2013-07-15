@@ -18,7 +18,6 @@
 package cloudbox.module.network;
 
 import cloudbox.module.IModule;
-import cloudbox.module.Message;
 import java.io.IOException;
 import tools.Command;
 
@@ -32,14 +31,21 @@ public class DownStream extends Thread{
         m_facade = f_facade;
     }
     
+    private void AskPropFile(String f_strPath) throws IOException{
+        Command cmd = new Command(Command.eType.GETPROPFILE);
+        cmd.setPath(f_strPath);
+        m_netHandler.sendCommand(cmd);        
+    }
+    
+    
     @Override
     public void run() {
         try {
       
+            AskPropFile("/");
             while(true) {
                 Command cmd = m_netHandler.getCommand();
-                // @TODO modify the null !
-                m_facade.notifyObs( new Message( m_facade, cmd) );
+                m_facade.notifyObs( cmd );
             }
         } catch (IOException ex) {
             ex.printStackTrace();

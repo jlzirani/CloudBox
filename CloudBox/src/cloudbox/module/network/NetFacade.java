@@ -19,10 +19,10 @@ package cloudbox.module.network;
 import cloudbox.module.IModule;
 import cloudbox.module.IObserver;
 import cloudbox.module.Message;
-import cloudbox.module.file.FileFacade;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
+import tools.Command;
 
 
 public class NetFacade implements IModule {
@@ -58,14 +58,13 @@ public class NetFacade implements IModule {
         m_upStream.notify(f_msg);
     }
 
-    
     public NetFacade(Socket f_sockClient) throws IOException {
         NetHandler netHandler = new NetHandler(f_sockClient);
         m_downStream = new DownStream(this, netHandler);
         m_upStream = new UpStream(netHandler);
     }
     
-    public NetFacade(FileFacade file, String localhost, short s) throws IOException {
+    public NetFacade( String localhost, short s) throws IOException {
         Socket client = new Socket(localhost, s);
         NetHandler netHandler = new NetHandler(client);
         m_downStream = new DownStream(this, netHandler);
@@ -78,10 +77,20 @@ public class NetFacade implements IModule {
         m_upStream.start();
     }
 
+    public void join() throws InterruptedException {
+        m_downStream.join();
+        
+    }
+    
     @Override
     public void stop() {
         m_downStream.interrupt();
         m_upStream.interrupt();
+    }
+
+    @Override
+    public void notifyObs(Command f_cmd) {
+        notifyObs(new Message(this, f_cmd));
     }
     
     
