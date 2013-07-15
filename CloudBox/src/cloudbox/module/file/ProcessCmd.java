@@ -30,12 +30,7 @@ import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import tools.Command;
-import static tools.Command.eType.FILE;
-import static tools.Command.eType.GETFILE;
-import static tools.Command.eType.GETINDEX;
-import static tools.Command.eType.GETPROPFILE;
-import static tools.Command.eType.INDEX;
-import static tools.Command.eType.PROPFILE;
+import static tools.Command.eType.*;
 
 
 public class ProcessCmd extends Thread {
@@ -81,13 +76,12 @@ public class ProcessCmd extends Thread {
     
     @Override
     public void run() {
-        while(!this.isInterrupted()){
+        while(true){
             wait_message();
             Message msg = getFirstMsg();
 
             logger.log(Level.INFO, "processing message : {0} Path: {1}", 
                   new Object[]{msg.getCmd().getType(), msg.getCmd().getPath()});
-
 
             switch(msg.getCmd().getType()){
                 case GETINDEX: getIndex(msg); break;
@@ -96,8 +90,9 @@ public class ProcessCmd extends Thread {
                 case INDEX:  index(msg); break;
                 case PROPFILE: PropFile(msg); break;
                 case FILE: File(msg); break;
+                case DELETE: Delete(msg); break;
                 default: 
-                    logger.log(Level.WARNING, "Message {0} not recognized",
+                    logger.log(Level.WARNING, "Message with type :{0} not recognized",
                             msg.getCmd().getType() );
             }
 
@@ -109,14 +104,12 @@ public class ProcessCmd extends Thread {
        m_strRootPath = f_strRootPath;
    }
         
-   private File getFile(String strPath){
-        return new File( m_strRootPath + strPath);
-   }
+
     
    private void getIndex(Message f_msg) {
         Command query = f_msg.getCmd();
         Command result = new Command(Command.eType.INDEX);
-        File root = getFile( query.getPath());
+        File root = Tools.getFile( m_strRootPath, query.getPath());
         result.setPath( query.getPath() );
         
         for(File file : root.listFiles()){
@@ -125,31 +118,11 @@ public class ProcessCmd extends Thread {
         f_msg.get_from().notify(new Message(m_facade, result));
    }
     
-   private Command constructPropFile( String strFilePath ) {
-        
-        Command result = new Command(Command.eType.PROPFILE);
-        result.setPath( strFilePath );
-        File file = getFile( strFilePath);
-        
-        if(file.isDirectory()) {
-            result.setIsDir(true);
-            result.setLength( (long)file.list().length );
-        }
-        else{
-            result.setIsDir(false);
-            result.setLength( file.length() );
-        }
-        
-        result.setDate(file.lastModified());
-        return result;
-   }
-    
-    
    private void index(Message f_msg){
         Command query = f_msg.getCmd();
         String strPath = query.getPath();
         //File path = getFile( query.getPath() );
-        File[] vecFiles = getFile(query.getPath()).listFiles();
+        File[] vecFiles = Tools.getFile(m_strRootPath, query.getPath()).listFiles();
         if(vecFiles.length > query.getIndex().size() )
         {
             for(File file: vecFiles) {
@@ -164,7 +137,8 @@ public class ProcessCmd extends Thread {
         for( Object o : query.getIndex() ){
             Command.cIndex it = (Command.cIndex)o; //Casting
             String strPathFile = strPath + File.separator + it.m_strName;
-            File file = getFile( strPathFile);
+            File file = Tools.getFile(m_strRootPath, strPathFile);
+            
             if(!file.exists() || file.lastModified() < it.m_date)
             {
                 Command requestFile = new Command(Command.eType.GETPROPFILE);
@@ -175,21 +149,22 @@ public class ProcessCmd extends Thread {
             
             if(file.exists() && file.lastModified() > it.m_date) {
                 f_msg.get_from().notify(new Message(m_facade, 
-                                               constructPropFile(strPathFile)));
+                           Tools.constructPropFile(m_strRootPath,strPathFile)));
             }
        }
    }
     
     private void getPropFile(Message f_msg) {
         Command query = f_msg.getCmd();
-        Message msg = new Message(m_facade, constructPropFile(query.getPath()));
+        Message msg = new Message(m_facade,  
+                        Tools.constructPropFile(m_strRootPath,query.getPath()));
         
         f_msg.get_from().notify(msg);
     }
     
     private void PropFile(Message f_msg) {
         Command query = f_msg.getCmd();
-        File file = getFile( query.getPath());
+        File file = Tools.getFile(m_strRootPath, query.getPath());
         Command reponse = null; 
        
         if(!file.exists())
@@ -213,7 +188,6 @@ public class ProcessCmd extends Thread {
         
         if(reponse != null) {
             reponse.setPath(query.getPath());
-            // @TODO modify null value
             f_msg.get_from().notify(new Message(m_facade,reponse));
         }
     }
@@ -225,7 +199,7 @@ public class ProcessCmd extends Thread {
             Command answer = new Command(Command.eType.FILE);
             answer.setPath(query.getPath());
             
-            File file = getFile( query.getPath() );
+            File file = Tools.getFile(m_strRootPath, query.getPath() );
             File parent = file.getParentFile();
             
             long parentDate = parent.lastModified() > query.getDate() ? 
@@ -261,7 +235,7 @@ public class ProcessCmd extends Thread {
         OutputStream outputStream = null;
         try {
             Command query = f_msg.getCmd();
-            File file = getFile( query.getPath() );
+            File file = Tools.getFile(m_strRootPath, query.getPath() );
             outputStream = new FileOutputStream(file);
             outputStream.write(query.getData());
             
@@ -279,6 +253,22 @@ public class ProcessCmd extends Thread {
         }
             
             
+    }
+    
+    
+    private void Delete(File f_file) {
+        if(f_file.exists()) {
+            if(f_file.isDirectory() && f_file.list().length>=0) {
+                for(File file2Del : f_file.listFiles())
+                    Delete(file2Del);
+            }
+            f_file.delete();            
+        }        
+    }
+    
+    private void Delete(Message f_msg) {
+        Command query = f_msg.getCmd();
+        Delete(Tools.getFile(m_strRootPath, query.getPath()));
     }
     
     
