@@ -16,8 +16,6 @@
  */
 package cloudbox.module;
 
-import tools.Command;
-
 /**
  *
  * @author Zirani J.-L.

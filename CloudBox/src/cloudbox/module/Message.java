@@ -35,7 +35,7 @@ public class Message {
     public void setCmd(Command f_cmd) { m_cmd = f_cmd; }
     public Command getCmd() { return m_cmd; }
     
-    public void set_from(AModule f_from) { m_from = f_from; }
+    public void set_from(IModule f_from) { m_from = f_from; }
     public IModule get_from() { return m_from; }
     
 }
