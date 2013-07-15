@@ -20,18 +20,20 @@ package cloudbox.module.file;
 import cloudbox.module.IModule;
 import cloudbox.module.IObserver;
 import cloudbox.module.Message;
+import java.io.IOException;
 import java.util.ArrayList;
+import tools.Command;
 
 
 public class FileFacade implements IModule {
 
     private ProcessCmd m_processCmd;
-    //private SyncFile m_syncFile;
+    private SyncFile m_syncFile;
     final protected ArrayList m_vecActors = new ArrayList();
 
-    public FileFacade(String string) {
+    public FileFacade(String string) throws IOException {
         m_processCmd = new ProcessCmd(this, string);
-        //m_syncFile = new SyncFile(this, string);    
+        m_syncFile = new SyncFile(this, string);    
     }
     
    @Override
@@ -69,11 +71,18 @@ public class FileFacade implements IModule {
     @Override
     public void start() {
         m_processCmd.start();
+        m_syncFile.start();
     }
     
     @Override
     public void stop() {
         m_processCmd.interrupt();
     }
+
+    @Override
+    public void notifyObs(Command f_cmd) {
+        notifyObs(new Message(this, f_cmd));
+    }
+
     
 }
