@@ -47,7 +47,8 @@ public class Server {
             while(true) {
                 Socket client = socket.accept();
                 NetFacade peer = new NetFacade(client);
-//                peer.attach(m_fileActor);
+                peer.attach(m_fileActor);
+                m_fileActor.attach(peer);
                 peer.start();                
             }
             
