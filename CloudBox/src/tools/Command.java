@@ -26,7 +26,7 @@ public class Command {
     static final private Logger logger = Logger.getLogger(Command.class.getName());
 
     static public enum eType { GETINDEX, INDEX, GETFILE, FILE, GETPROPFILE, 
-        PROPFILE };
+        PROPFILE, DELETE };
     
     static public class cIndex {
         public String m_strName;
@@ -209,11 +209,12 @@ public class Command {
         switch(m_Type){
             case GETINDEX:
             case GETFILE :
+            case DELETE :
             case GETPROPFILE: result = serializeGet(); break;
             case INDEX: result = serializeIndex(); break;
             case PROPFILE: result = serualizablePropFile(); break;
             case FILE: result = serializeFile(); break;
-            default: logger.log(Level.WARNING, "Type non recognized");
+            default: logger.log(Level.WARNING, "Type {0} non recognized", m_Type.toString());
         }
         
         return result;       
@@ -275,11 +276,12 @@ public class Command {
        switch(type){
             case GETINDEX:
             case GETFILE :
+            case DELETE :
             case GETPROPFILE: cmd.unserializablePath( f_data ); break;
             case INDEX: cmd.unserializeIndex(f_data); break;
             case PROPFILE: cmd.unserualizablePropFile( f_data ); break;
             case FILE: cmd.unserializeFile(f_data); break;
-            default: logger.log(Level.WARNING, "Type non recognized");
+            default: logger.log(Level.WARNING, "Type {0} non recognized", type.toString());
         }
               
         
