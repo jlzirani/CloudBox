@@ -37,6 +37,7 @@ public class SyncFile extends Thread{
     private boolean trace = false;
 
     private final Map<WatchKey,Path> keys = new HashMap<>();
+    private final Map<String,Path> inhebitor = new HashMap<>();
     private final WatchService watcher;
         
        
@@ -50,19 +51,21 @@ public class SyncFile extends Thread{
     /**
      * Register the given directory with the WatchService
      */
-    private void register(Path dir) throws IOException {
+    public void register(Path dir) throws IOException {
         WatchKey key = dir.register(watcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
-        if (trace) {
-            Path prev = keys.get(key);
-            if (prev == null) {
-                System.out.format("register: %s\n", dir);
-            } else {
-                if (!dir.equals(prev)) {
-                    System.out.format("update: %s -> %s\n", prev, dir);
+        synchronized (keys) {
+            if (trace) {
+                Path prev = keys.get(key);
+                if (prev == null) {
+                    System.out.format("register: %s\n", dir);
+                } else {
+                    if (!dir.equals(prev)) {
+                        System.out.format("update: %s -> %s\n", prev, dir);
+                    }
                 }
             }
+            keys.put(key, dir);
         }
-        keys.put(key, dir);
     }
     
     /**
@@ -82,7 +85,19 @@ public class SyncFile extends Thread{
         });
     }
     
-        /**
+    public void inebitorFile(Path dir) {
+        inhebitor.put(dir.toString(), dir);
+        
+        System.out.format("File %s inhibited\n", dir.toString());
+    }
+    
+    public void removeInebitorFile(Path dir) {
+        inhebitor.remove(dir.toString());
+        
+        System.out.format("File %s not inhibited\n", dir.toString());
+    }
+   
+    /**
      * Process all events for keys queued to the watcher
      */
     @Override
@@ -124,23 +139,37 @@ public class SyncFile extends Thread{
                 
                 Path relativePath =  Paths.get(m_strRootPath).relativize(child);
                 
-                if (kind == ENTRY_DELETE) {
-                    Command cmd = new Command(Command.eType.DELETE);
-                    cmd.setPath(relativePath.toString());
-                    m_facade.notifyObs( cmd );
-                }
-         
-                if (kind == ENTRY_CREATE) {
-                    try {
-                        m_facade.notifyObs( Tools.constructPropFile(m_strRootPath, 
-                                relativePath.toString()  ) );
-                        
-                        if (Files.isDirectory(child, NOFOLLOW_LINKS)) {
-                            registerAll(child);
-                        }
-                    } catch (IOException x) {
-                        // ignore to keep sample readbale
+                if(!inhebitor.containsKey(name.toString()))
+                {
+                    
+                    if (kind == ENTRY_DELETE) {
+                        Command cmd = new Command(Command.eType.DELETE);
+                        cmd.setPath(relativePath.toString());
+                        m_facade.notifyObs( cmd );
                     }
+
+                    if (kind == ENTRY_MODIFY) {
+                        /*Command cmd = new Command(Command.eType.);
+                        cmd.setPath(relativePath.toString());*/
+                        m_facade.notifyObs( Tools.constructPropFile( m_strRootPath, relativePath.toString()) );
+                    }
+
+                    if (kind == ENTRY_CREATE) {
+                        try {
+                            m_facade.notifyObs( Tools.constructPropFile(m_strRootPath, 
+                                    relativePath.toString()  ) );
+
+                            if (Files.isDirectory(child, NOFOLLOW_LINKS)) {
+                                registerAll(child);
+                            }
+                        } catch (IOException x) {
+                            // ignore to keep sample readbale
+                        }
+                    }
+                }
+                else {
+                    System.out.format("File %s not proccessed.\n", relativePath );
+                    removeInebitorFile(name);
                 }
             }
  

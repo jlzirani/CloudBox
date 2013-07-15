@@ -36,6 +36,11 @@ public class FileFacade implements IModule {
         m_syncFile = new SyncFile(this, string);    
     }
     
+    public SyncFile getSyncFile() {
+        return m_syncFile;        
+    }
+    
+    
    @Override
     public void attach(IObserver f_newObs) {
         synchronized (m_vecActors) {
@@ -63,11 +68,7 @@ public class FileFacade implements IModule {
     public void notify(Message f_msg) {
        m_processCmd.pushMsg(f_msg);
     }
-    
-    public FileFacade( IModule f_facade, String f_strRootPath ) {
-        m_processCmd = new ProcessCmd(f_facade, f_strRootPath);
-    }
-    
+
     @Override
     public void start() {
         m_processCmd.start();

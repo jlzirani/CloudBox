@@ -17,7 +17,6 @@
 
 package cloudbox.module.file;
 
-import cloudbox.module.IModule;
 import cloudbox.module.Message;
 import java.io.File;
 import java.io.FileInputStream;
@@ -36,7 +35,7 @@ import static tools.Command.eType.*;
 public class ProcessCmd extends Thread {
     final static private Logger logger = Logger.getLogger(ProcessCmd.class.getName());
     final private Queue m_vecMessage = new LinkedList();
-    private IModule m_facade;
+    private FileFacade m_facade;
     private String m_strRootPath;
     
     protected void pushMsg(Message f_msg) {
@@ -99,22 +98,22 @@ public class ProcessCmd extends Thread {
         }
     }
     
-   public ProcessCmd(IModule f_facade, String f_strRootPath){
+   public ProcessCmd(FileFacade f_facade, String f_strRootPath){
        m_facade = f_facade;       
        m_strRootPath = f_strRootPath;
    }
-        
-
     
    private void getIndex(Message f_msg) {
         Command query = f_msg.getCmd();
         Command result = new Command(Command.eType.INDEX);
+        
         File root = Tools.getFile( m_strRootPath, query.getPath());
         result.setPath( query.getPath() );
         
         for(File file : root.listFiles()){
             result.AddIndexFile( file.getName(), file.lastModified() );            
         }
+        
         f_msg.get_from().notify(new Message(m_facade, result));
    }
     
@@ -194,9 +193,11 @@ public class ProcessCmd extends Thread {
     
     private void getFile(Message f_msg) {
         FileInputStream inputStream = null;
+        
+        Command query = f_msg.getCmd();
+        Command answer = new Command(Command.eType.FILE);
+      
         try {
-            Command query = f_msg.getCmd();
-            Command answer = new Command(Command.eType.FILE);
             answer.setPath(query.getPath());
             
             File file = Tools.getFile(m_strRootPath, query.getPath() );
@@ -208,15 +209,18 @@ public class ProcessCmd extends Thread {
             byte[] contentFile = new byte[(int)file.length()];
             inputStream = new FileInputStream(file);
             inputStream.read(contentFile);
+            
+            m_facade.getSyncFile().inebitorFile( file.toPath() ); // unregister a file
             file.setLastModified(query.getDate());
+            
             answer.setLength(file.length());
             answer.setDate(file.lastModified());
             answer.setData(contentFile);
          
+            m_facade.getSyncFile().inebitorFile( parent.toPath() ); // unregister a file
             parent.setLastModified(parentDate);
-            
+
             f_msg.get_from().notify(new Message(m_facade,answer));
-            
         } catch (FileNotFoundException ex) {
             logger.log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
@@ -228,6 +232,7 @@ public class ProcessCmd extends Thread {
                 logger.log(Level.SEVERE, null, ex);
             }
         }
+    
     }
     
     private void File( Message f_msg ) {
@@ -235,9 +240,15 @@ public class ProcessCmd extends Thread {
         OutputStream outputStream = null;
         try {
             Command query = f_msg.getCmd();
+            
             File file = Tools.getFile(m_strRootPath, query.getPath() );
+            
+            m_facade.getSyncFile().inebitorFile( file.toPath() ); // unregister a file
+            
             outputStream = new FileOutputStream(file);
             outputStream.write(query.getData());
+            
+            outputStream.flush();
             
             file.setLastModified(query.getDate());
         } catch (FileNotFoundException ex) {
