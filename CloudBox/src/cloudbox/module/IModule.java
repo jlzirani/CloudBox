@@ -31,8 +31,7 @@ public interface IModule extends IObserver{
     /* Notify all the observers */
     public void notifyObs(Message f_msg);
     public void notifyObs(Command f_cmd);
-    
-    
+        
     /* starting and stopping the module */
     public void start();
     public void stop();

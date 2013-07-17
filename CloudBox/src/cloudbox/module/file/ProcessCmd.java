@@ -72,7 +72,7 @@ public class ProcessCmd extends Thread {
             }
         }
     }
-    
+
     @Override
     public void run() {
         while(true){
@@ -97,8 +97,14 @@ public class ProcessCmd extends Thread {
 
         }
     }
+ 
+    private void setLastDate(File f_file, long l_newDate) {
+        m_facade.getSyncFile().inebitorFile( f_file.toPath() ); // unregister a file
+        f_file.setLastModified(l_newDate);
+    }
     
-   public ProcessCmd(FileFacade f_facade, String f_strRootPath){
+    
+   public ProcessCmd( FileFacade f_facade, String f_strRootPath) {
        m_facade = f_facade;       
        m_strRootPath = f_strRootPath;
    }
@@ -120,8 +126,8 @@ public class ProcessCmd extends Thread {
    private void index(Message f_msg){
         Command query = f_msg.getCmd();
         String strPath = query.getPath();
-        //File path = getFile( query.getPath() );
         File[] vecFiles = Tools.getFile(m_strRootPath, query.getPath()).listFiles();
+
         if(vecFiles.length > query.getIndex().size() )
         {
             for(File file: vecFiles) {
@@ -143,7 +149,6 @@ public class ProcessCmd extends Thread {
                 Command requestFile = new Command(Command.eType.GETPROPFILE);
                 requestFile.setPath(strPathFile);
                 f_msg.get_from().notify(new Message(m_facade, requestFile));
-
             }
             
             if(file.exists() && file.lastModified() > it.m_date) {
@@ -171,7 +176,7 @@ public class ProcessCmd extends Thread {
             if(query.getIsDir()) {
                 file.mkdir();
                 reponse = new Command(Command.eType.GETINDEX);
-                file.setLastModified(query.getDate());
+                setLastDate(file, query.getDate());
             }
             else 
             {   reponse = new Command(Command.eType.GETFILE);   }
@@ -210,15 +215,13 @@ public class ProcessCmd extends Thread {
             inputStream = new FileInputStream(file);
             inputStream.read(contentFile);
             
-            m_facade.getSyncFile().inebitorFile( file.toPath() ); // unregister a file
-            file.setLastModified(query.getDate());
+            setLastDate(file, query.getDate());
             
             answer.setLength(file.length());
             answer.setDate(file.lastModified());
             answer.setData(contentFile);
-         
-            m_facade.getSyncFile().inebitorFile( parent.toPath() ); // unregister a file
-            parent.setLastModified(parentDate);
+            
+            setLastDate(parent, parentDate);
 
             f_msg.get_from().notify(new Message(m_facade,answer));
         } catch (FileNotFoundException ex) {
@@ -238,18 +241,20 @@ public class ProcessCmd extends Thread {
     private void File( Message f_msg ) {
 
         OutputStream outputStream = null;
+        
+        Command query = f_msg.getCmd();
+        File file = Tools.getFile(m_strRootPath, query.getPath() );
+            
+        m_facade.getSyncFile().inebitorFile( file.toPath() ); // unregister a file
+        
         try {
-            Command query = f_msg.getCmd();
-            
-            File file = Tools.getFile(m_strRootPath, query.getPath() );
-            
-            m_facade.getSyncFile().inebitorFile( file.toPath() ); // unregister a file
-            
-            outputStream = new FileOutputStream(file);
+            // opening the file and write on it
+            outputStream = new FileOutputStream(file); 
+
             outputStream.write(query.getData());
-            
             outputStream.flush();
             
+            // modify the date
             file.setLastModified(query.getDate());
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();
@@ -262,18 +267,20 @@ public class ProcessCmd extends Thread {
                 ex.printStackTrace();
             }
         }
-            
-            
+
     }
     
     
     private void Delete(File f_file) {
+        
         if(f_file.exists()) {
             if(f_file.isDirectory() && f_file.list().length>=0) {
                 for(File file2Del : f_file.listFiles())
                     Delete(file2Del);
             }
-            f_file.delete();            
+            
+            m_facade.getSyncFile().inebitorFile( f_file.toPath() );
+            f_file.delete();
         }        
     }
     
@@ -281,8 +288,5 @@ public class ProcessCmd extends Thread {
         Command query = f_msg.getCmd();
         Delete(Tools.getFile(m_strRootPath, query.getPath()));
     }
-    
-    
-    
-
+   
 }

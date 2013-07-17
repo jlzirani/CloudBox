@@ -16,43 +16,15 @@
  */
 
 package cloudbox.module.network;
-import cloudbox.module.IModule;
-import cloudbox.module.IObserver;
+import cloudbox.module.AModule;
 import cloudbox.module.Message;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.ArrayList;
-import tools.Command;
 
-
-public class NetFacade implements IModule {
-    final protected ArrayList m_vecActors = new ArrayList();
+public class NetFacade extends AModule {
     DownStream m_downStream;
     UpStream m_upStream;
     
-    @Override
-    public void attach(IObserver f_newObs) {
-        synchronized (m_vecActors) {
-            m_vecActors.add(f_newObs);
-        }
-    }
-
-    @Override
-    public void dettach(IObserver f_newObs) {
-           synchronized (m_vecActors) {
-            m_vecActors.remove(f_newObs);
-        }    
-    }
-
-    @Override
-    public void notifyObs(Message f_msg) {
-        synchronized (m_vecActors) {
-            for (Object o : m_vecActors) {
-                ((IObserver) o).notify(f_msg);
-            }
-        }
-    }
-
     @Override
     public void notify(Message f_msg) {
         m_upStream.notify(f_msg);
@@ -88,11 +60,5 @@ public class NetFacade implements IModule {
         m_upStream.interrupt();
     }
 
-    @Override
-    public void notifyObs(Command f_cmd) {
-        notifyObs(new Message(this, f_cmd));
-    }
-    
-    
     
 }

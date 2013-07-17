@@ -24,6 +24,8 @@ import java.nio.file.attribute.*;
 import java.io.*;
 import java.nio.file.*;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import tools.Command;
 /**
  *
@@ -35,6 +37,7 @@ public class SyncFile extends Thread{
     private IModule m_facade;
     String m_strRootPath;
     private boolean trace = false;
+    final static private Logger logger = Logger.getLogger(SyncFile.class.getName());
 
     private final Map<WatchKey,Path> keys = new HashMap<>();
     private final Map<String,Path> inhebitor = new HashMap<>();
@@ -88,13 +91,13 @@ public class SyncFile extends Thread{
     public void inebitorFile(Path dir) {
         inhebitor.put(dir.toString(), dir);
         
-        System.out.format("File %s inhibited\n", dir.toString());
+        logger.log(Level.INFO, "The following file ({0}) is now inhibited", dir.toString());
     }
     
     public void removeInebitorFile(Path dir) {
         inhebitor.remove(dir.toString());
         
-        System.out.format("File %s not inhibited\n", dir.toString());
+        logger.log(Level.INFO, "The following file ({0}) is now restored", dir.toString());
     }
    
     /**
@@ -114,7 +117,8 @@ public class SyncFile extends Thread{
  
             Path dir = keys.get(key);
             if (dir == null) {
-                System.err.println("WatchKey not recognized!!");
+                logger.log(Level.WARNING, "WatchKey ({0}) not recognized!!", 
+                        key.toString());
                 continue;
             }
  
@@ -122,9 +126,8 @@ public class SyncFile extends Thread{
                 WatchEvent.Kind kind = event.kind();
  
                 // TBD - provide example of how OVERFLOW event is handled
-                if (kind == OVERFLOW) {
-                    continue;
-                }
+                if (kind == OVERFLOW) 
+                {   continue;   }
  
                 // Context for directory entry event is the file name of entry
                 WatchEvent<Path> ev = (WatchEvent<Path>)event;
@@ -132,44 +135,42 @@ public class SyncFile extends Thread{
                 Path child = dir.resolve(name);
  
                 // print out event
-                System.out.format("%s child: %s\n", event.kind().name(), child );
- 
-                // if directory is created, and watching recursively, then
-                // register it and its sub-directories
+                logger.log(Level.INFO, "kind: {0} child: {1}", 
+                            new String[]{event.kind().name(),child.toString()});
                 
                 Path relativePath =  Paths.get(m_strRootPath).relativize(child);
-                
-                if(!inhebitor.containsKey(name.toString()))
-                {
-                    
-                    if (kind == ENTRY_DELETE) {
-                        Command cmd = new Command(Command.eType.DELETE);
-                        cmd.setPath(relativePath.toString());
-                        m_facade.notifyObs( cmd );
-                    }
+                synchronized(inhebitor) {
+                    if(!inhebitor.containsKey(child.toString()))
+                    {
+                        logger.log(Level.INFO, "Processing the following file ({0})", child.toString());
+                        if (kind == ENTRY_DELETE) {
+                            Command cmd = new Command(Command.eType.DELETE);
+                            cmd.setPath(relativePath.toString());
+                            m_facade.notifyObs( cmd );
+                        }
 
-                    if (kind == ENTRY_MODIFY) {
-                        /*Command cmd = new Command(Command.eType.);
-                        cmd.setPath(relativePath.toString());*/
-                        m_facade.notifyObs( Tools.constructPropFile( m_strRootPath, relativePath.toString()) );
-                    }
+                        if (kind == ENTRY_MODIFY) {
+                            m_facade.notifyObs( Tools.constructPropFile( 
+                                     m_strRootPath, relativePath.toString() ) );
+                        }
 
-                    if (kind == ENTRY_CREATE) {
-                        try {
-                            m_facade.notifyObs( Tools.constructPropFile(m_strRootPath, 
-                                    relativePath.toString()  ) );
+                        if (kind == ENTRY_CREATE) {
+                            try {
+                                m_facade.notifyObs( Tools.constructPropFile(m_strRootPath, 
+                                        relativePath.toString() ) );
 
-                            if (Files.isDirectory(child, NOFOLLOW_LINKS)) {
-                                registerAll(child);
+                                if (Files.isDirectory(child, NOFOLLOW_LINKS)) {
+                                    registerAll(child);
+                                }
+                            } catch (IOException x) {
+                                logger.log(Level.WARNING, null, x);
                             }
-                        } catch (IOException x) {
-                            // ignore to keep sample readbale
                         }
                     }
-                }
-                else {
-                    System.out.format("File %s not proccessed.\n", relativePath );
-                    removeInebitorFile(name);
+                    else {
+                        logger.log(Level.INFO, "Unprocessing the following file ({0})", child.toString());
+                        removeInebitorFile(child);
+                    }
                 }
             }
  
@@ -179,9 +180,8 @@ public class SyncFile extends Thread{
                 keys.remove(key);
  
                 // all directories are inaccessible
-                if (keys.isEmpty()) {
-                    break;
-                }
+                if (keys.isEmpty()) 
+                {   break;  }
             }
         }
     }
