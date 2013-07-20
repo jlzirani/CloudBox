@@ -17,6 +17,8 @@
 package cloudbox.module.gui;
 
 import java.awt.Component;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -40,6 +42,9 @@ public class MainFrame extends javax.swing.JFrame {
         initComponents();
         setTitle("CloudBox");
         
+        m_properties = f_prop;
+        optionFrame = new OptionFrame(m_properties);
+       
         for (final javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
             final JRadioButtonMenuItem button = new JRadioButtonMenuItem();
             button.setText(info.getName());
@@ -53,12 +58,18 @@ public class MainFrame extends javax.swing.JFrame {
                }
             });
              
-            if( UIManager.getSystemLookAndFeelClassName().equals(info.getClassName()) ) {
+            if( m_properties.getProperty("GUI.look",UIManager.getSystemLookAndFeelClassName()).equals(info.getClassName()) ) {
                 setLook(info.getClassName());   
                 button.setSelected(true);
             }
-         }
-        m_properties = f_prop;
+        }
+        
+        
+        
+        m_properties.setProperty("GUI", "On");
+              
+        
+        
     }
 
     /**
@@ -73,6 +84,8 @@ public class MainFrame extends javax.swing.JFrame {
         jTabbedPane1 = new javax.swing.JTabbedPane();
         menuBar = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
+        saveCfgFile = new javax.swing.JMenuItem();
+        jSeparator1 = new javax.swing.JPopupMenu.Separator();
         exitButton = new javax.swing.JMenuItem();
         toolsMenu = new javax.swing.JMenu();
         lookMenu = new javax.swing.JMenu();
@@ -81,6 +94,15 @@ public class MainFrame extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         fileMenu.setText("File");
+
+        saveCfgFile.setText("Save config");
+        saveCfgFile.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                saveCfgFileActionPerformed(evt);
+            }
+        });
+        fileMenu.add(saveCfgFile);
+        fileMenu.add(jSeparator1);
 
         exitButton.setText("Exit");
         exitButton.addActionListener(new java.awt.event.ActionListener() {
@@ -129,10 +151,7 @@ public class MainFrame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void optionsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_optionsButtonActionPerformed
-        if(optionFrame == null){
-            optionFrame = new OptionFrame();
-        }
-        optionFrame.setProperties(m_properties);
+        optionFrame.setProperties();
         optionFrame.setVisible(true);
     }//GEN-LAST:event_optionsButtonActionPerformed
 
@@ -144,23 +163,30 @@ public class MainFrame extends javax.swing.JFrame {
 
     }//GEN-LAST:event_toolsMenuActionPerformed
 
-   
+    private void saveCfgFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveCfgFileActionPerformed
+        try {
+            System.out.println(m_properties.getProperty("mode"));
+            m_properties.store(new FileOutputStream("cloudbox.cfg"), "");
+        } catch (IOException ex) {
+            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_saveCfgFileActionPerformed
+
     public final void setLook(String f_strLook) {
         try {
             for( Component o: lookMenu.getMenuComponents() )
             {
                 ((JRadioButtonMenuItem)o).setSelected(false);
             }
-            
+             
             UIManager.setLookAndFeel(f_strLook);
             SwingUtilities.updateComponentTreeUI(this);
             this.pack(); 
             
-            if(optionFrame != null){
-                SwingUtilities.updateComponentTreeUI(optionFrame);
-                optionFrame.pack();
-            }
+            SwingUtilities.updateComponentTreeUI(optionFrame);
+            optionFrame.pack();
             
+            m_properties.setProperty("GUI.look", f_strLook);
         }
         catch (ClassNotFoundException ex) {
             Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
@@ -176,10 +202,12 @@ public class MainFrame extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem exitButton;
     private javax.swing.JMenu fileMenu;
+    private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JMenu lookMenu;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JMenuItem optionsButton;
+    private javax.swing.JMenuItem saveCfgFile;
     private javax.swing.JMenu toolsMenu;
     // End of variables declaration//GEN-END:variables
 }

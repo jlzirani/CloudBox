@@ -17,10 +17,7 @@
 
 package cloudbox;
 
-import cloudbox.module.network.Server;
-import cloudbox.module.file.FileFacade;
 import cloudbox.module.gui.GUIFacade;
-import cloudbox.module.network.NetFacade;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;

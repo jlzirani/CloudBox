@@ -27,8 +27,8 @@ import javax.swing.JFileChooser;
  */
 public class OptionFrame extends JDialog {
 
-    int m_previousPort = 1337;
-    
+    private int m_previousPort = 1337;
+    private Properties m_properties;
     
     /**
      * Creates new form OptionFrame
@@ -38,36 +38,38 @@ public class OptionFrame extends JDialog {
         initComponents();
     }
 
-    public OptionFrame() {
+    public OptionFrame(Properties f_properties) {
         super();
         initComponents();
         this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         setTitle("Option");
+        m_properties = f_properties;
     }
     
-    public void setProperties(Properties f_prop) {
-        switch(f_prop.getProperty("mode", "client")) {
-            case "client" : setClientProp(f_prop); break;
-            case "server" : setServerProp(f_prop);
-            default: setClientProp(f_prop);
+    public void setProperties() {
+        switch(m_properties.getProperty("mode", "client")) {
+            case "client" : setClientProp(); break;
+            case "server" : setServerProp(); break;
+            default: setClientProp();
         }
         
-        directoryField.setText(f_prop.getProperty("directory", 
+        directoryField.setText(m_properties.getProperty("directory", 
                 System.getProperty("user.home")+File.separator+"CloudBox"+
                 File.separator));
+        System.out.println(m_properties.getProperty("mode"));
     }
     
-    private void setClientProp(Properties f_prop) {
+    private void setClientProp() {
         clientMode.setSelected(true);
         setClientPanel();
-        hostField.setText(f_prop.getProperty("host", "localhost"));
-        portField.setText(f_prop.getProperty("port", "1337"));
+        hostField.setText(m_properties.getProperty("host", "localhost"));
+        portField.setText(m_properties.getProperty("port", "1337"));
     }
 
-    private void setServerProp(Properties f_prop) {
+    private void setServerProp() {
         serverMode.setSelected(true);
         setServerPanel();
-        portField.setText(f_prop.getProperty("port", "1337"));
+        portField.setText(m_properties.getProperty("port", "1337"));
     }
     
     
@@ -262,7 +264,7 @@ public class OptionFrame extends JDialog {
                 .addComponent(generalPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(networkPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 127, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(okButton)
                     .addComponent(applyButton)
@@ -315,6 +317,20 @@ public class OptionFrame extends JDialog {
     }//GEN-LAST:event_cancelButtonActionPerformed
 
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
+        
+        if(serverMode.isSelected()) {
+            m_properties.setProperty("mode", "server"); 
+            m_properties.remove("host");
+        }
+        else {   
+            m_properties.setProperty("mode", "client"); 
+            m_properties.setProperty("host", hostField.getText());
+        }
+        
+        m_properties.setProperty("port", portField.getText());
+        m_properties.setProperty("directory", directoryField.getText());
+        
+            
         this.dispose();
     }//GEN-LAST:event_okButtonActionPerformed
 
