@@ -29,7 +29,7 @@
           <SubComponents>
             <Menu class="javax.swing.JMenu" name="lookMenu">
               <Properties>
-                <Property name="text" type="java.lang.String" value="look"/>
+                <Property name="text" type="java.lang.String" value="Look"/>
               </Properties>
             </Menu>
             <MenuItem class="javax.swing.JMenuItem" name="optionsButton">
@@ -68,13 +68,19 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <EmptySpace min="0" pref="400" max="32767" attributes="0"/>
+          <Component id="jTabbedPane1" alignment="0" pref="400" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
-          <EmptySpace min="0" pref="281" max="32767" attributes="0"/>
+          <Component id="jTabbedPane1" alignment="0" pref="281" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
   </Layout>
+  <SubComponents>
+    <Container class="javax.swing.JTabbedPane" name="jTabbedPane1">
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout"/>
+    </Container>
+  </SubComponents>
 </Form>

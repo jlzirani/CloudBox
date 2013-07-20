@@ -17,6 +17,7 @@
 package cloudbox.module.gui;
 
 import java.awt.Component;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JRadioButtonMenuItem;
@@ -30,12 +31,14 @@ import javax.swing.UnsupportedLookAndFeelException;
  */
 public class MainFrame extends javax.swing.JFrame {
     private OptionFrame optionFrame;
+    private Properties m_properties;
   
     /**
      * Creates new form MainFrame
      */
-    public MainFrame() {
+    public MainFrame(Properties f_prop) {
         initComponents();
+        setTitle("CloudBox");
         
         for (final javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
             final JRadioButtonMenuItem button = new JRadioButtonMenuItem();
@@ -54,8 +57,8 @@ public class MainFrame extends javax.swing.JFrame {
                 setLook(info.getClassName());   
                 button.setSelected(true);
             }
-            
          }
+        m_properties = f_prop;
     }
 
     /**
@@ -67,6 +70,7 @@ public class MainFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jTabbedPane1 = new javax.swing.JTabbedPane();
         menuBar = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
         exitButton = new javax.swing.JMenuItem();
@@ -95,7 +99,7 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
 
-        lookMenu.setText("look");
+        lookMenu.setText("Look");
         toolsMenu.add(lookMenu);
 
         optionsButton.setText("Options");
@@ -114,11 +118,11 @@ public class MainFrame extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 281, Short.MAX_VALUE)
+            .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 281, Short.MAX_VALUE)
         );
 
         pack();
@@ -128,6 +132,7 @@ public class MainFrame extends javax.swing.JFrame {
         if(optionFrame == null){
             optionFrame = new OptionFrame();
         }
+        optionFrame.setProperties(m_properties);
         optionFrame.setVisible(true);
     }//GEN-LAST:event_optionsButtonActionPerformed
 
@@ -150,6 +155,12 @@ public class MainFrame extends javax.swing.JFrame {
             UIManager.setLookAndFeel(f_strLook);
             SwingUtilities.updateComponentTreeUI(this);
             this.pack(); 
+            
+            if(optionFrame != null){
+                SwingUtilities.updateComponentTreeUI(optionFrame);
+                optionFrame.pack();
+            }
+            
         }
         catch (ClassNotFoundException ex) {
             Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
@@ -162,22 +173,10 @@ public class MainFrame extends javax.swing.JFrame {
         }
     }
     
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new MainFrame().setVisible(true);
-            }
-        });
-    }
-    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem exitButton;
     private javax.swing.JMenu fileMenu;
+    private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JMenu lookMenu;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JMenuItem optionsButton;

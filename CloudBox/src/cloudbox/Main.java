@@ -19,46 +19,78 @@ package cloudbox;
 
 import cloudbox.module.network.Server;
 import cloudbox.module.file.FileFacade;
+import cloudbox.module.gui.GUIFacade;
 import cloudbox.module.network.NetFacade;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Main {
     final static private Logger logger = Logger.getLogger(Main.class.getName());
+    
+    /*private static void server() {
+        try {
+            FileFacade file = new FileFacade(System.getProperty("user.home")+"/CloudBox/server");
+            file.start();
+            logger.log(Level.INFO, "Starting server");
+            Server server = new Server(file);
+            server.run();
+        } catch (IOException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    } 
+    
+    private static void client() {
+        try {
+            FileFacade file = new FileFacade(System.getProperty("user.home")+"/CloudBox/client");
+            file.start();
+            logger.log(Level.INFO, "Starting client");
+
+            NetFacade client = new NetFacade( "localhost", (short)1337);
+
+            client.attach(file);
+            file.attach(client);
+
+            client.start();
+
+            client.join();
+        }  catch (IOException ex) {
+            logger.log(Level.SEVERE,null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }*/
+    
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) throws InterruptedException, IOException {
-        FileFacade file = new FileFacade(System.getProperty("user.home")+"/CloudBox/"+args[0]);
-        file.start();
-
-        if("server".equals(args[0]))
-        {
-            logger.log(Level.INFO, "Starting server");
-            Server server = new Server(file);
-            server.run();
-        }
-
-        if("client".equals(args[0]))
-        {
+        
+        final Properties prop = new Properties();
+        
+        if(args.length == 0) {            
             
-            logger.log(Level.INFO, "Starting client");
             try {
-                NetFacade client = new NetFacade( "localhost", (short)1337);
-                
-                client.attach(file);
-                file.attach(client);
-                
-                client.start();
-                
-                client.join();
-                
-            }  catch (IOException ex) {
-                logger.log(Level.SEVERE,null, ex);
+                prop.load(new FileInputStream("cloudbox.cfg"));
+            }
+            catch (FileNotFoundException ex) {
+                logger.log(Level.WARNING, "The config file \"cloudbox.cfg\" was not found");
+            }            
+        }
+        else {
+            switch(args[0]) {
+                default: logger.log(Level.WARNING, "Parameter {0} was not recognized", args[0]);
             }
         }
-        //file.stop();
-        //file.interrupt(); // we kill the file thread
+        
+        if("On".equals(prop.getProperty("GUI", "On"))) {
+            new GUIFacade(prop).start();
+        }
+        
+        
+        
     }
 }

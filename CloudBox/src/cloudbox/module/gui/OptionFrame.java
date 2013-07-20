@@ -16,14 +16,20 @@
  */
 package cloudbox.module.gui;
 
+import java.io.File;
+import java.util.Properties;
 import javax.swing.JDialog;
-
+import javax.swing.BorderFactory;
+import javax.swing.JFileChooser;
 /**
  *
  * @author Zirani J.-L.
  */
 public class OptionFrame extends JDialog {
 
+    int m_previousPort = 1337;
+    
+    
     /**
      * Creates new form OptionFrame
      */
@@ -36,8 +42,45 @@ public class OptionFrame extends JDialog {
         super();
         initComponents();
         this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        setTitle("Option");
     }
     
+    public void setProperties(Properties f_prop) {
+        switch(f_prop.getProperty("mode", "client")) {
+            case "client" : setClientProp(f_prop); break;
+            case "server" : setServerProp(f_prop);
+            default: setClientProp(f_prop);
+        }
+        
+        directoryField.setText(f_prop.getProperty("directory", 
+                System.getProperty("user.home")+File.separator+"CloudBox"+
+                File.separator));
+    }
+    
+    private void setClientProp(Properties f_prop) {
+        clientMode.setSelected(true);
+        setClientPanel();
+        hostField.setText(f_prop.getProperty("host", "localhost"));
+        portField.setText(f_prop.getProperty("port", "1337"));
+    }
+
+    private void setServerProp(Properties f_prop) {
+        serverMode.setSelected(true);
+        setServerPanel();
+        portField.setText(f_prop.getProperty("port", "1337"));
+    }
+    
+    
+    public final void setServerPanel() {
+        networkPanel.setBorder(BorderFactory.createTitledBorder("Server")); 
+        hostField.setEnabled(false);
+    }
+    
+    public final void setClientPanel() {
+        networkPanel.setBorder(BorderFactory.createTitledBorder("Client")); 
+        hostField.setEnabled(true);
+    }
+        
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -47,61 +90,257 @@ public class OptionFrame extends JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel1 = new javax.swing.JPanel();
-        jPanel2 = new javax.swing.JPanel();
+        modeGroup = new javax.swing.ButtonGroup();
+        directoryChooser = new javax.swing.JFileChooser();
+        generalPanel = new javax.swing.JPanel();
+        modeLabel = new javax.swing.JLabel();
+        serverMode = new javax.swing.JRadioButton();
+        clientMode = new javax.swing.JRadioButton();
+        dirLabel = new javax.swing.JLabel();
+        directoryField = new javax.swing.JTextField();
+        directoryChooserButton = new javax.swing.JButton();
+        networkPanel = new javax.swing.JPanel();
+        portLabel = new javax.swing.JLabel();
+        portField = new javax.swing.JFormattedTextField();
+        hostLabel = new javax.swing.JLabel();
+        hostField = new javax.swing.JTextField();
+        okButton = new javax.swing.JButton();
+        cancelButton = new javax.swing.JButton();
+        applyButton = new javax.swing.JButton();
+
+        directoryChooser.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Server"));
+        generalPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("General"));
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 388, Short.MAX_VALUE)
+        modeLabel.setText("Mode :");
+
+        modeGroup.add(serverMode);
+        serverMode.setText("Server");
+        serverMode.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                serverModeActionPerformed(evt);
+            }
+        });
+
+        modeGroup.add(clientMode);
+        clientMode.setSelected(true);
+        clientMode.setText("Client");
+        clientMode.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                clientModeActionPerformed(evt);
+            }
+        });
+
+        dirLabel.setText("Directory :");
+
+        directoryField.setText(System.getProperty("user.home")+File.separator+"CloudBox"+File.separator);
+
+        directoryChooserButton.setText("change");
+        directoryChooserButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                directoryChooserButtonActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout generalPanelLayout = new javax.swing.GroupLayout(generalPanel);
+        generalPanel.setLayout(generalPanelLayout);
+        generalPanelLayout.setHorizontalGroup(
+            generalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(generalPanelLayout.createSequentialGroup()
+                .addGap(1, 1, 1)
+                .addGroup(generalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(generalPanelLayout.createSequentialGroup()
+                        .addComponent(modeLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(serverMode)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(clientMode)
+                        .addContainerGap())
+                    .addGroup(generalPanelLayout.createSequentialGroup()
+                        .addComponent(dirLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(directoryField, javax.swing.GroupLayout.DEFAULT_SIZE, 179, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(directoryChooserButton))))
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 69, Short.MAX_VALUE)
+        generalPanelLayout.setVerticalGroup(
+            generalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(generalPanelLayout.createSequentialGroup()
+                .addGroup(generalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(modeLabel)
+                    .addComponent(serverMode)
+                    .addComponent(clientMode))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(generalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(dirLabel)
+                    .addComponent(directoryField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(directoryChooserButton)))
         );
 
-        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Directory"));
+        networkPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Server"));
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+        portLabel.setText("port :");
+
+        portField.setText("1337");
+        portField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                portFieldActionPerformed(evt);
+            }
+        });
+
+        hostLabel.setText("Host address:");
+
+        hostField.setText("localhost");
+        hostField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                hostFieldActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout networkPanelLayout = new javax.swing.GroupLayout(networkPanel);
+        networkPanel.setLayout(networkPanelLayout);
+        networkPanelLayout.setHorizontalGroup(
+            networkPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(networkPanelLayout.createSequentialGroup()
+                .addGroup(networkPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(hostLabel)
+                    .addComponent(portLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(networkPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(portField, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(hostField, javax.swing.GroupLayout.PREFERRED_SIZE, 198, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(0, 0, Short.MAX_VALUE))
         );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 92, Short.MAX_VALUE)
+        networkPanelLayout.setVerticalGroup(
+            networkPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(networkPanelLayout.createSequentialGroup()
+                .addGroup(networkPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(hostLabel)
+                    .addComponent(hostField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(networkPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(portLabel)
+                    .addComponent(portField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
+
+        okButton.setText("Ok");
+        okButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                okButtonActionPerformed(evt);
+            }
+        });
+
+        cancelButton.setText("Cancel");
+        cancelButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cancelButtonActionPerformed(evt);
+            }
+        });
+
+        applyButton.setText("Apply");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(generalPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(networkPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(cancelButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(applyButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(okButton)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(generalPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(networkPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 127, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(okButton)
+                    .addComponent(applyButton)
+                    .addComponent(cancelButton))
+                .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void directoryChooserButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_directoryChooserButtonActionPerformed
+        File curDir = new File(directoryField.getText());
+        
+        if(!curDir.exists() || !curDir.isDirectory()) { 
+            directoryField.setText( System.getProperty("user.home")+
+                    File.separator+ "CloudBox"+ File.separator);
+            curDir =  new File( directoryField.getText() );
+        }
+
+        directoryChooser.setCurrentDirectory(curDir);
+        //directoryChooser.showOpenDialog(this);
+        
+        if(directoryChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
+        {
+            File selectedFile = directoryChooser.getSelectedFile();
+            if(selectedFile.exists() && selectedFile.isDirectory()) {
+                directoryField.setText(selectedFile.getAbsolutePath());
+            }
+        }
+    }//GEN-LAST:event_directoryChooserButtonActionPerformed
+
+    private void clientModeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clientModeActionPerformed
+        setClientPanel();
+    }//GEN-LAST:event_clientModeActionPerformed
+
+    private void serverModeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_serverModeActionPerformed
+        setServerPanel();
+    }//GEN-LAST:event_serverModeActionPerformed
+
+    private void portFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_portFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_portFieldActionPerformed
+
+    private void hostFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hostFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_hostFieldActionPerformed
+
+    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
+        this.dispose();
+    }//GEN-LAST:event_cancelButtonActionPerformed
+
+    private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
+        this.dispose();
+    }//GEN-LAST:event_okButtonActionPerformed
 
     /**
      * @param args the command line arguments
      */
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
+    private javax.swing.JButton applyButton;
+    private javax.swing.JButton cancelButton;
+    private javax.swing.JRadioButton clientMode;
+    private javax.swing.JLabel dirLabel;
+    private javax.swing.JFileChooser directoryChooser;
+    private javax.swing.JButton directoryChooserButton;
+    private javax.swing.JTextField directoryField;
+    private javax.swing.JPanel generalPanel;
+    private javax.swing.JTextField hostField;
+    private javax.swing.JLabel hostLabel;
+    private javax.swing.ButtonGroup modeGroup;
+    private javax.swing.JLabel modeLabel;
+    private javax.swing.JPanel networkPanel;
+    private javax.swing.JButton okButton;
+    private javax.swing.JFormattedTextField portField;
+    private javax.swing.JLabel portLabel;
+    private javax.swing.JRadioButton serverMode;
     // End of variables declaration//GEN-END:variables
+
+
 }
