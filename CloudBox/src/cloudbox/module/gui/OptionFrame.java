@@ -27,7 +27,6 @@ import javax.swing.JFileChooser;
  */
 public class OptionFrame extends JDialog {
 
-    private int m_previousPort = 1337;
     private Properties m_properties;
     
     /**
@@ -56,7 +55,6 @@ public class OptionFrame extends JDialog {
         directoryField.setText(m_properties.getProperty("directory", 
                 System.getProperty("user.home")+File.separator+"CloudBox"+
                 File.separator));
-        System.out.println(m_properties.getProperty("mode"));
     }
     
     private void setClientProp() {

@@ -83,7 +83,7 @@ public class Main {
             }
         }
         
-        if("On".equals(prop.getProperty("GUI", "On"))) {
+        if("GUI".equals(prop.getProperty("interface", "GUI"))) {
             new GUIFacade(prop).start();
         }
         
