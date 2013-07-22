@@ -31,6 +31,12 @@ public class FileFacade extends AModule {
         m_syncFile = new SyncFile(this, string);    
     }
     
+    public void setDirectory(String f_strDirPath) throws IOException {
+        m_processCmd.setDirPath(f_strDirPath);
+        m_syncFile.setDirPath(f_strDirPath);
+    }
+    
+    
     public SyncFile getSyncFile() {
         return m_syncFile;        
     }
@@ -49,6 +55,11 @@ public class FileFacade extends AModule {
     @Override
     public void stop() {
         m_processCmd.interrupt();
+    }
+
+    @Override
+    public Status status() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     

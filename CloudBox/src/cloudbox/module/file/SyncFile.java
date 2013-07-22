@@ -50,6 +50,13 @@ public class SyncFile extends Thread{
        m_strRootPath = f_strRootPath;
        registerAll(Paths.get(f_strRootPath));
    }
+    
+    
+   public void setDirPath(String f_strDirPath) throws IOException {
+       keys.clear();
+       registerAll(Paths.get(f_strDirPath));       
+   }
+    
            
     /**
      * Register the given directory with the WatchService

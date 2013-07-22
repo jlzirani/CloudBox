@@ -60,5 +60,10 @@ public class NetFacade extends AModule {
         m_upStream.interrupt();
     }
 
+    @Override
+    public Status status() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     
 }

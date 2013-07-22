@@ -45,6 +45,11 @@ public class ProcessCmd extends Thread {
         }        
     }
     
+    public void setDirPath(String f_strDirPath) {
+        m_strRootPath = f_strDirPath;
+    }
+    
+    
     protected Message getFirstMsg() {
         Message msg;
         synchronized (m_vecMessage) {

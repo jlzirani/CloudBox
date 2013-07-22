@@ -24,6 +24,8 @@ import tools.Command;
  */
 public interface IModule extends IObserver{
     
+    public static enum Status { RUNNING, STOPPED, ERROR };
+    
     /* attach observer */
     public void attach(IObserver f_newObs);
     public void dettach(IObserver f_newObs);
@@ -35,4 +37,9 @@ public interface IModule extends IObserver{
     /* starting and stopping the module */
     public void start();
     public void stop();
+    public Status status();
+
+    /* */
+
+
 }
