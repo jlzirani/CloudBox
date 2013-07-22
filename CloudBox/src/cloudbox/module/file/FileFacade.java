@@ -19,6 +19,7 @@ package cloudbox.module.file;
 
 import cloudbox.module.AModule;
 import cloudbox.module.Message;
+import java.io.File;
 import java.io.IOException;
 
 public class FileFacade extends AModule {
@@ -55,16 +56,28 @@ public class FileFacade extends AModule {
     @Override
     public void stop() {
         m_processCmd.interrupt();
+        m_syncFile.interrupt();
     }
 
     @Override
     public Status status() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Status status = Status.ERROR; // by default the status is in error
+        
+        if(m_processCmd.isAlive() && m_syncFile.isAlive()) 
+        {   status = Status.RUNNING;    } 
+        if(!m_processCmd.isAlive() && !m_syncFile.isAlive()) 
+        {   status = Status.STOPPED;    }
+    
+        return status;
     }
 
     @Override
     public void loadProperties() {
-        // #TODO
+        if(!m_properties.containsKey("directory")) {   
+            m_properties.setProperty("directory", 
+                    System.getProperty("user.home")+File.separator+"CloudBox"+
+                    File.separator);
+        }
     }
 
     
