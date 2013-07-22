@@ -16,6 +16,7 @@
  */
 package cloudbox.module;
 
+import java.util.Properties;
 import tools.Command;
 
 /**
@@ -39,7 +40,8 @@ public interface IModule extends IObserver{
     public void stop();
     public Status status();
 
-    /* */
-
+    /* properties */
+    public void setProperties(Properties f_properties);
+    public void loadProperties();
 
 }

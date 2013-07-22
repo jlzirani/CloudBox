@@ -65,5 +65,10 @@ public class NetFacade extends AModule {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    @Override
+    public void loadProperties() {
+        // #TODO
+    }
+
     
 }

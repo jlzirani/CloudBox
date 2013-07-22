@@ -18,10 +18,12 @@
 package cloudbox.module;
 
 import java.util.ArrayList;
+import java.util.Properties;
 import tools.Command;
 
 public abstract class AModule implements IModule{
     final protected ArrayList m_vecActors = new ArrayList();
+    private Properties m_properties;
     
     @Override
     public void attach(IObserver f_newObs) {
@@ -50,4 +52,11 @@ public abstract class AModule implements IModule{
     public void notifyObs(Command f_cmd) {
         notifyObs(new Message(this, f_cmd));
     }
+    
+    @Override
+    public void setProperties(Properties f_properties) {
+        m_properties = f_properties;
+        loadProperties();
+    }
+    
 }
