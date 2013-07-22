@@ -23,7 +23,7 @@ import tools.Command;
 
 public abstract class AModule implements IModule{
     final protected ArrayList m_vecActors = new ArrayList();
-    private Properties m_properties;
+    protected Properties m_properties;
     
     @Override
     public void attach(IObserver f_newObs) {
