@@ -17,6 +17,7 @@
 
 package cloudbox;
 
+import cloudbox.module.IModule;
 import cloudbox.module.gui.GUIFacade;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -83,9 +84,17 @@ public class Main {
             }
         }
         
-        if("GUI".equals(prop.getProperty("interface", "GUI"))) {
-            new GUIFacade(prop).start();
+        
+        try {
+            IModule gui;
+            gui = (IModule)Class.forName( prop.getProperty("interface", GUIFacade.class.getName()) ).newInstance();
+            gui.setProperties(prop);
+            gui.start();
+        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
+
         
         
         

@@ -16,6 +16,7 @@
  */
 package cloudbox.module.gui;
 
+import cloudbox.module.file.FileFacade;
 import java.io.File;
 import java.util.Properties;
 import javax.swing.JDialog;
@@ -52,7 +53,8 @@ public class OptionFrame extends JDialog {
             default: setClientProp();
         }
         
-        directoryField.setText(m_properties.getProperty("directory", 
+        directoryField.setText(m_properties.getProperty(
+                FileFacade.class.getPackage().getName()+".directory", 
                 System.getProperty("user.home")+File.separator+"CloudBox"+
                 File.separator));
     }
@@ -134,8 +136,6 @@ public class OptionFrame extends JDialog {
         });
 
         dirLabel.setText("Directory :");
-
-        directoryField.setText(System.getProperty("user.home")+File.separator+"CloudBox"+File.separator);
 
         directoryChooserButton.setText("change");
         directoryChooserButton.addActionListener(new java.awt.event.ActionListener() {
@@ -326,7 +326,7 @@ public class OptionFrame extends JDialog {
         }
         
         m_properties.setProperty("port", portField.getText());
-        m_properties.setProperty("directory", directoryField.getText());
+        m_properties.setProperty(FileFacade.class.getPackage().getName()+".directory", directoryField.getText());
         
             
         this.dispose();

@@ -21,23 +21,30 @@ import cloudbox.module.AModule;
 import cloudbox.module.Message;
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class FileFacade extends AModule {
 
+    static private String ms_strPkgName=FileFacade.class.getPackage().getName();
     private ProcessCmd m_processCmd;
     private SyncFile m_syncFile;
-
+    
     public FileFacade(String string) throws IOException {
         m_processCmd = new ProcessCmd(this, string);
         m_syncFile = new SyncFile(this, string);    
     }
     
-    public void setDirectory(String f_strDirPath) throws IOException {
-        m_processCmd.setDirPath(f_strDirPath);
-        m_syncFile.setDirPath(f_strDirPath);
+    public FileFacade() throws IOException {
+        m_processCmd = new ProcessCmd(this);
+        m_syncFile = new SyncFile(this);    
     }
     
-    
+    private void setDirectory() throws IOException {
+        m_processCmd.setDirPath(m_properties.getProperty(ms_strPkgName+".directory"));
+        m_syncFile.setDirPath(m_properties.getProperty(ms_strPkgName+".directory"));
+    }
+        
     public SyncFile getSyncFile() {
         return m_syncFile;        
     }
@@ -73,10 +80,15 @@ public class FileFacade extends AModule {
 
     @Override
     public void loadProperties() {
-        if(!m_properties.containsKey("directory")) {   
-            m_properties.setProperty("directory", 
+        if(!m_properties.containsKey(ms_strPkgName+".directory")) {   
+            m_properties.setProperty(ms_strPkgName+".directory", 
                     System.getProperty("user.home")+File.separator+"CloudBox"+
                     File.separator);
+        }
+        try {
+            setDirectory();
+        } catch (IOException ex) {
+            Logger.getLogger(FileFacade.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

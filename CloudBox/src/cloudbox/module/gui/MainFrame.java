@@ -36,15 +36,19 @@ public class MainFrame extends javax.swing.JFrame {
     private OptionFrame optionFrame;
     private Properties m_properties;
     private FileFacade m_fileModule;
+    static private String ms_strPkgName =MainFrame.class.getPackage().getName();
   
     /**
      * Creates new form MainFrame
      */
-    public MainFrame(Properties f_prop) {
+    public MainFrame(Properties f_prop) throws IOException {
         initComponents();
         setTitle("CloudBox");
         
         m_properties = f_prop;
+        m_fileModule = new FileFacade();
+        m_fileModule.setProperties(m_properties);
+        
         optionFrame = new OptionFrame(m_properties);
        
         for (final javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
@@ -60,12 +64,11 @@ public class MainFrame extends javax.swing.JFrame {
                }
             });
              
-            if( m_properties.getProperty("GUI.look",UIManager.getSystemLookAndFeelClassName()).equals(info.getClassName()) ) {
+            if( m_properties.getProperty(ms_strPkgName+".look").equals(info.getClassName()) ) {
                 setLook(info.getClassName());   
                 button.setSelected(true);
             }
         }
-        m_properties.setProperty("interface", "GUI");
     }
 
     /**
@@ -218,7 +221,7 @@ public class MainFrame extends javax.swing.JFrame {
             SwingUtilities.updateComponentTreeUI(optionFrame);
             optionFrame.pack();
             
-            m_properties.setProperty("GUI.look", f_strLook);
+            m_properties.setProperty(ms_strPkgName+".look", f_strLook);
         }
         catch (ClassNotFoundException ex) {
             Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);

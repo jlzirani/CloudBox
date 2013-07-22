@@ -19,24 +19,26 @@ package cloudbox.module.gui;
 
 import cloudbox.module.AModule;
 import cloudbox.module.Message;
-import java.util.Properties;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.UIManager;
 
 public class GUIFacade extends AModule {
     private MainFrame m_mainFrame;
-    private Properties m_properties;
-    
-    
-    public GUIFacade(Properties f_properties){
-        m_properties = f_properties;
-    }
+    static private String ms_strPkgName =GUIFacade.class.getPackage().getName();
     
     @Override
     public void start() {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                m_mainFrame = new MainFrame(m_properties);
-                m_mainFrame.setVisible(true);
+                try {
+                    m_mainFrame = new MainFrame(m_properties);
+                    m_mainFrame.setVisible(true);
+                } catch (IOException ex) {
+                    Logger.getLogger(GUIFacade.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
         
@@ -59,7 +61,14 @@ public class GUIFacade extends AModule {
 
     @Override
     public void loadProperties() {
-        // #TODO
+        if(!m_properties.containsKey("interface")) {
+            m_properties.setProperty("interface", this.getClass().getName());            
+        }
+        
+        if(!m_properties.containsKey(ms_strPkgName+".look")) {
+            m_properties.setProperty(ms_strPkgName+".look", UIManager.getSystemLookAndFeelClassName());
+        }
+
     }
 
 }

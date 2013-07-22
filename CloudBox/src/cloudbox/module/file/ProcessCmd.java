@@ -108,6 +108,9 @@ public class ProcessCmd extends Thread {
         f_file.setLastModified(l_newDate);
     }
     
+    public ProcessCmd( FileFacade f_facade) {
+       m_facade = f_facade;
+    }
     
    public ProcessCmd( FileFacade f_facade, String f_strRootPath) {
        m_facade = f_facade;       

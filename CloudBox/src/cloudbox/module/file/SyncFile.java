@@ -51,6 +51,11 @@ public class SyncFile extends Thread{
        registerAll(Paths.get(f_strRootPath));
    }
     
+    public SyncFile(IModule f_facade) throws IOException{
+       watcher = FileSystems.getDefault().newWatchService();
+       m_facade = f_facade;       
+    }
+    
     
    public void setDirPath(String f_strDirPath) throws IOException {
        keys.clear();
