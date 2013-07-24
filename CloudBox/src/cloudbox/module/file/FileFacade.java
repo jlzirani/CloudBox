@@ -21,28 +21,32 @@ import cloudbox.module.AModule;
 import cloudbox.module.Message;
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class FileFacade extends AModule {
 
     static private String ms_strPkgName=FileFacade.class.getPackage().getName();
-    private ProcessCmd m_processCmd;
     private SyncFile m_syncFile;
     
+    private Thread m_threadFile;
+    ExecutorService m_executorProcess = null;
+    
+    String m_strRootPath;
+    
     public FileFacade(String string) throws IOException {
-        m_processCmd = new ProcessCmd(this, string);
         m_syncFile = new SyncFile(this, string);    
     }
     
     public FileFacade() throws IOException {
-        m_processCmd = new ProcessCmd(this);
         m_syncFile = new SyncFile(this);    
     }
     
     private void setDirectory() throws IOException {
-        m_processCmd.setDirPath(m_properties.getProperty(ms_strPkgName+".directory"));
-        m_syncFile.setDirPath(m_properties.getProperty(ms_strPkgName+".directory"));
+        m_strRootPath = m_properties.getProperty(ms_strPkgName+".directory");
+        m_syncFile.setDirPath(m_strRootPath);
     }
         
     public SyncFile getSyncFile() {
@@ -51,30 +55,45 @@ public class FileFacade extends AModule {
 
     @Override
     public void notify(Message f_msg) {
-       m_processCmd.pushMsg(f_msg);
+        if(m_executorProcess != null && !m_executorProcess.isTerminated())
+            m_executorProcess.execute(new ProcessCmd(this, m_strRootPath, f_msg));
     }
 
     @Override
     public void start() {
-        m_processCmd.start();
-        m_syncFile.start();
+        m_threadFile = new Thread(m_syncFile);
+        m_executorProcess = Executors.newFixedThreadPool(25);
+        m_threadFile.start();
     }
     
     @Override
     public void stop() {
-        m_processCmd.interrupt();
-        m_syncFile.interrupt();
+        m_threadFile.interrupt();
+        
+        try {
+             m_threadFile.join();
+        } catch (InterruptedException ex) {
+            Logger.getLogger(FileFacade.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        m_executorProcess.shutdown();
+        m_threadFile = null;
     }
 
     @Override
     public Status status() {
         Status status = Status.ERROR; // by default the status is in error
         
-        if(m_processCmd.isAlive() && m_syncFile.isAlive()) 
-        {   status = Status.RUNNING;    } 
-        if(!m_processCmd.isAlive() && !m_syncFile.isAlive()) 
+        if( m_threadFile == null && 
+                (m_executorProcess == null || m_executorProcess.isTerminated()))
         {   status = Status.STOPPED;    }
-    
+        else
+        {
+            if((m_executorProcess != null && !m_executorProcess.isTerminated()) 
+                    || (m_threadFile != null && m_threadFile.isAlive() ))
+            {   status = Status.RUNNING;    } 
+            
+        }
+        
         return status;
     }
 

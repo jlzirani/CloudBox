@@ -33,7 +33,7 @@ import tools.Command;
  */
 
 
-public class SyncFile extends Thread{
+public class SyncFile implements Runnable {
     private IModule m_facade;
     String m_strRootPath;
     private boolean trace = false;
@@ -117,84 +117,83 @@ public class SyncFile extends Thread{
      */
     @Override
     public void run() {
-        while (true) {
- 
-            // wait for key to be signalled
-            WatchKey key;
-            try {
-                key = watcher.take();
-            } catch (InterruptedException x) {
-                return;
-            }
- 
-            Path dir = keys.get(key);
-            if (dir == null) {
-                logger.log(Level.WARNING, "WatchKey ({0}) not recognized!!", 
-                        key.toString());
-                continue;
-            }
- 
-            for (WatchEvent<?> event: key.pollEvents()) {
-                WatchEvent.Kind kind = event.kind();
- 
-                // TBD - provide example of how OVERFLOW event is handled
-                if (kind == OVERFLOW) 
-                {   continue;   }
- 
-                // Context for directory entry event is the file name of entry
-                WatchEvent<Path> ev = (WatchEvent<Path>)event;
-                Path name = ev.context();
-                Path child = dir.resolve(name);
- 
-                // print out event
-                logger.log(Level.INFO, "kind: {0} child: {1}", 
-                            new String[]{event.kind().name(),child.toString()});
-                
-                Path relativePath =  Paths.get(m_strRootPath).relativize(child);
-                synchronized(inhebitor) {
-                    if(!inhebitor.containsKey(child.toString()))
-                    {
-                        logger.log(Level.INFO, "Processing the following file ({0})", child.toString());
-                        if (kind == ENTRY_DELETE) {
-                            Command cmd = new Command(Command.eType.DELETE);
-                            cmd.setPath(relativePath.toString());
-                            m_facade.notifyObs( cmd );
-                        }
+        try {
 
-                        if (kind == ENTRY_MODIFY) {
-                            m_facade.notifyObs( Tools.constructPropFile( 
-                                     m_strRootPath, relativePath.toString() ) );
-                        }
+            while (true) {
+                // wait for key to be signalled
+                WatchKey key = watcher.take();
 
-                        if (kind == ENTRY_CREATE) {
-                            try {
-                                m_facade.notifyObs( Tools.constructPropFile(m_strRootPath, 
-                                        relativePath.toString() ) );
+                Path dir = keys.get(key);
+                if (dir == null) {
+                    logger.log(Level.WARNING, "WatchKey ({0}) not recognized!!", 
+                            key.toString());
+                    continue;
+                }
 
-                                if (Files.isDirectory(child, NOFOLLOW_LINKS)) {
-                                    registerAll(child);
+                for (WatchEvent<?> event: key.pollEvents()) {
+                    WatchEvent.Kind kind = event.kind();
+
+                    // TBD - provide example of how OVERFLOW event is handled
+                    if (kind == OVERFLOW) 
+                    {   continue;   }
+
+                    // Context for directory entry event is the file name of entry
+                    WatchEvent<Path> ev = (WatchEvent<Path>)event;
+                    Path name = ev.context();
+                    Path child = dir.resolve(name);
+
+                    // print out event
+                    logger.log(Level.INFO, "kind: {0} child: {1}", 
+                                new String[]{event.kind().name(),child.toString()});
+
+                    Path relativePath =  Paths.get(m_strRootPath).relativize(child);
+                    synchronized(inhebitor) {
+                        if(!inhebitor.containsKey(child.toString()))
+                        {
+                            logger.log(Level.INFO, "Processing the following file ({0})", child.toString());
+                            if (kind == ENTRY_DELETE) {
+                                Command cmd = new Command(Command.eType.DELETE);
+                                cmd.setPath(relativePath.toString());
+                                m_facade.notifyObs( cmd );
+                            }
+
+                            if (kind == ENTRY_MODIFY) {
+                                m_facade.notifyObs( Tools.constructPropFile( 
+                                         m_strRootPath, relativePath.toString() ) );
+                            }
+
+                            if (kind == ENTRY_CREATE) {
+                                try {
+                                    m_facade.notifyObs( Tools.constructPropFile(m_strRootPath, 
+                                            relativePath.toString() ) );
+
+                                    if (Files.isDirectory(child, NOFOLLOW_LINKS)) {
+                                        registerAll(child);
+                                    }
+                                } catch (IOException x) {
+                                    logger.log(Level.WARNING, null, x);
                                 }
-                            } catch (IOException x) {
-                                logger.log(Level.WARNING, null, x);
                             }
                         }
-                    }
-                    else {
-                        logger.log(Level.INFO, "Unprocessing the following file ({0})", child.toString());
-                        removeInebitorFile(child);
+                        else {
+                            logger.log(Level.INFO, "Unprocessing the following file ({0})", child.toString());
+                            removeInebitorFile(child);
+                        }
                     }
                 }
+
+                // reset key and remove from set if directory no longer accessible
+                boolean valid = key.reset();
+                if (!valid) {
+                    keys.remove(key);
+
+                    // all directories are inaccessible
+                    if (keys.isEmpty()) 
+                    {   break;  }
+                }
             }
- 
-            // reset key and remove from set if directory no longer accessible
-            boolean valid = key.reset();
-            if (!valid) {
-                keys.remove(key);
- 
-                // all directories are inaccessible
-                if (keys.isEmpty()) 
-                {   break;  }
-            }
+        } catch (InterruptedException x) {
+         
         }
     }
     

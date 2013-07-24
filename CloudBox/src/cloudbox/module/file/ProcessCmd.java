@@ -24,82 +24,44 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import tools.Command;
 import static tools.Command.eType.*;
 
 
-public class ProcessCmd extends Thread {
+public class ProcessCmd implements Runnable {
     final static private Logger logger = Logger.getLogger(ProcessCmd.class.getName());
-    final private Queue m_vecMessage = new LinkedList();
     private FileFacade m_facade;
     private String m_strRootPath;
-    
-    protected void pushMsg(Message f_msg) {
-        synchronized (m_vecMessage) {
-            m_vecMessage.add(f_msg);
-            m_vecMessage.notify();
-        }        
+    private Message m_message;
+
+    public ProcessCmd(FileFacade f_facade, String f_rootPath, Message f_msg) {
+        m_facade = f_facade;
+        m_strRootPath = f_rootPath;
+        m_message = f_msg;
     }
     
     public void setDirPath(String f_strDirPath) {
         m_strRootPath = f_strDirPath;
-    }
-    
-    
-    protected Message getFirstMsg() {
-        Message msg;
-        synchronized (m_vecMessage) {
-            msg = (Message) m_vecMessage.poll();
-        }
-        return msg;
-    }
-
-    protected Message topMsg() {
-        Message msg;
-        synchronized (m_vecMessage) {
-            msg = (Message) m_vecMessage.peek();
-        }
-        return msg;
-    }
-
-    protected void wait_message() {
-        if (m_vecMessage.isEmpty()) {
-            synchronized (m_vecMessage) {
-                try {
-                    m_vecMessage.wait();
-                } catch (InterruptedException ex) {
-                    logger.log(Level.SEVERE, null, ex);
-                }
-            }
-        }
-    }
+    }    
 
     @Override
     public void run() {
-        while(true){
-            wait_message();
-            Message msg = getFirstMsg();
+        logger.log(Level.INFO, "processing message : {0} Path: {1}", 
+              new Object[]{m_message.getCmd().getType(), m_message.getCmd().getPath()});
 
-            logger.log(Level.INFO, "processing message : {0} Path: {1}", 
-                  new Object[]{msg.getCmd().getType(), msg.getCmd().getPath()});
-
-            switch(msg.getCmd().getType()){
-                case GETINDEX: getIndex(msg); break;
-                case GETPROPFILE: getPropFile(msg); break;
-                case GETFILE: getFile(msg); break;
-                case INDEX:  index(msg); break;
-                case PROPFILE: PropFile(msg); break;
-                case FILE: File(msg); break;
-                case DELETE: Delete(msg); break;
-                default: 
-                    logger.log(Level.WARNING, "Message with type :{0} not recognized",
-                            msg.getCmd().getType() );
-            }
-
+        switch(m_message.getCmd().getType()){
+            case GETINDEX: getIndex(m_message); break;
+            case GETPROPFILE: getPropFile(m_message); break;
+            case GETFILE: getFile(m_message); break;
+            case INDEX:  index(m_message); break;
+            case PROPFILE: PropFile(m_message); break;
+            case FILE: File(m_message); break;
+            case DELETE: Delete(m_message); break;
+            default: 
+                logger.log(Level.WARNING, "Message with type :{0} not recognized",
+                        m_message.getCmd().getType() );
         }
     }
  
