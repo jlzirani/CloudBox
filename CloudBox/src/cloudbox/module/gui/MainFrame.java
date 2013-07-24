@@ -17,7 +17,7 @@
 package cloudbox.module.gui;
 
 import cloudbox.module.IModule.Status;
-import cloudbox.module.file.FileFacade;
+import cloudbox.module.file.FileModule;
 import java.awt.Component;
 import java.io.FileOutputStream;
 import static java.util.concurrent.TimeUnit.*;
@@ -39,7 +39,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 public class MainFrame extends javax.swing.JFrame {
     private OptionFrame optionFrame;
     private Properties m_properties;
-    private FileFacade m_fileModule;
+    private FileModule m_fileModule;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     static private String ms_strPkgName =MainFrame.class.getPackage().getName();
   
@@ -51,7 +51,7 @@ public class MainFrame extends javax.swing.JFrame {
         setTitle("CloudBox");
         
         m_properties = f_prop;
-        m_fileModule = new FileFacade();
+        m_fileModule = new FileModule();
         m_fileModule.setProperties(m_properties);
         
         optionFrame = new OptionFrame(m_properties);

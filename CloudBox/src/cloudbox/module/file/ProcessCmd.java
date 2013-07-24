@@ -32,11 +32,11 @@ import static tools.Command.eType.*;
 
 public class ProcessCmd implements Runnable {
     final static private Logger logger = Logger.getLogger(ProcessCmd.class.getName());
-    private FileFacade m_facade;
+    private FileModule m_facade;
     private String m_strRootPath;
     private Message m_message;
 
-    public ProcessCmd(FileFacade f_facade, String f_rootPath, Message f_msg) {
+    public ProcessCmd(FileModule f_facade, String f_rootPath, Message f_msg) {
         m_facade = f_facade;
         m_strRootPath = f_rootPath;
         m_message = f_msg;
@@ -70,11 +70,11 @@ public class ProcessCmd implements Runnable {
         f_file.setLastModified(l_newDate);
     }
     
-    public ProcessCmd( FileFacade f_facade) {
+    public ProcessCmd( FileModule f_facade) {
        m_facade = f_facade;
     }
     
-   public ProcessCmd( FileFacade f_facade, String f_strRootPath) {
+   public ProcessCmd( FileModule f_facade, String f_strRootPath) {
        m_facade = f_facade;       
        m_strRootPath = f_strRootPath;
    }
