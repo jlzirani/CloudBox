@@ -18,12 +18,14 @@
 package cloudbox.module.network;
 import cloudbox.module.AModule;
 import cloudbox.module.Message;
+import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
 
 public class NetFacade extends AModule {
-    DownStream m_downStream;
-    UpStream m_upStream;
+    static private String ms_strPkgName=NetFacade.class.getPackage().getName();
+    private DownStream m_downStream;
+    private UpStream m_upStream;
     
     @Override
     public void notify(Message f_msg) {
@@ -67,7 +69,16 @@ public class NetFacade extends AModule {
 
     @Override
     public void loadProperties() {
-        // #TODO
+        if(!m_properties.containsKey(ms_strPkgName+".mode")) {   
+            m_properties.setProperty(ms_strPkgName+".mode", 
+                    "client");
+        }
+    
+        if(!m_properties.containsKey(ms_strPkgName+".port")) {   
+            m_properties.setProperty(ms_strPkgName+".port", 
+                    "1337");
+        }
+        
     }
 
     
