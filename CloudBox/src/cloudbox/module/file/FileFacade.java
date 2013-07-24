@@ -44,6 +44,10 @@ public class FileFacade extends AModule {
         m_syncFile = new SyncFile(this);    
     }
     
+    public String getDirectoryWatcher() {
+        return m_strRootPath;
+    }
+    
     private void setDirectory() throws IOException {
         m_strRootPath = m_properties.getProperty(ms_strPkgName+".directory");
         m_syncFile.setDirPath(m_strRootPath);

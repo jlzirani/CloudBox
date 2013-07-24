@@ -16,11 +16,15 @@
  */
 package cloudbox.module.gui;
 
+import cloudbox.module.IModule.Status;
 import cloudbox.module.file.FileFacade;
 import java.awt.Component;
 import java.io.FileOutputStream;
+import static java.util.concurrent.TimeUnit.*;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JRadioButtonMenuItem;
@@ -36,6 +40,7 @@ public class MainFrame extends javax.swing.JFrame {
     private OptionFrame optionFrame;
     private Properties m_properties;
     private FileFacade m_fileModule;
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     static private String ms_strPkgName =MainFrame.class.getPackage().getName();
   
     /**
@@ -69,8 +74,26 @@ public class MainFrame extends javax.swing.JFrame {
                 button.setSelected(true);
             }
         }
+        setStatusLabel();
     }
 
+    private void setStatusLabel()
+    {
+        final StatusWatcher statusWatcher = new StatusWatcher();
+        
+        statusWatcher.setFileModule(m_fileModule);
+        statusWatcher.setReloadButton(reloadBtn);
+        statusWatcher.setStartButton(startButton);
+        statusWatcher.setStatusLabel(statusLabel);
+        
+        statusWatcher.run(); // run once to update the status :)
+        dirWatcherLabel.setText(m_fileModule.getDirectoryWatcher());
+        //set the directory watcher label :)
+        
+        // Schedule this task on each SECONDS
+        scheduler.scheduleAtFixedRate(statusWatcher, 1, 1, SECONDS);
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -80,10 +103,18 @@ public class MainFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jTabbedPane1 = new javax.swing.JTabbedPane();
         filePanel = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
+        startButton = new javax.swing.JButton();
+        reloadBtn = new javax.swing.JButton();
+        jPanel1 = new javax.swing.JPanel();
+        statusMsgLabel = new javax.swing.JLabel();
+        statusLabel = new javax.swing.JLabel();
+        dirWatcherMsgLabel = new javax.swing.JLabel();
+        dirWatcherLabel = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
         menuBar = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
         saveCfgFile = new javax.swing.JMenuItem();
@@ -95,39 +126,114 @@ public class MainFrame extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jLabel1.setText("Status :");
+        startButton.setText("Start/Stop");
+        startButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                startButtonActionPerformed(evt);
+            }
+        });
+
+        reloadBtn.setText("reload properties");
+        reloadBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                reloadBtnActionPerformed(evt);
+            }
+        });
+
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Directory watcher"));
+
+        statusMsgLabel.setText("Status :");
+
+        statusLabel.setText("STOPPED");
+
+        dirWatcherMsgLabel.setText("Directory watcher :");
+
+        dirWatcherLabel.setText("av");
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(statusMsgLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(statusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(dirWatcherMsgLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(dirWatcherLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(statusMsgLabel)
+                    .addComponent(statusLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(dirWatcherMsgLabel)
+                    .addComponent(dirWatcherLabel)))
+        );
+
+        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Network"));
+
+        jLabel1.setText("Mode :");
+
+        jLabel2.setText("Server :");
+
+        jLabel3.setText("Status :");
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel1)
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel3))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel3)
+                .addGap(0, 101, Short.MAX_VALUE))
+        );
 
         javax.swing.GroupLayout filePanelLayout = new javax.swing.GroupLayout(filePanel);
         filePanel.setLayout(filePanelLayout);
         filePanelLayout.setHorizontalGroup(
             filePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(filePanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel1)
-                .addContainerGap(347, Short.MAX_VALUE))
+                .addContainerGap(205, Short.MAX_VALUE)
+                .addComponent(reloadBtn)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(startButton, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         filePanelLayout.setVerticalGroup(
             filePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(filePanelLayout.createSequentialGroup()
-                .addGap(20, 20, 20)
-                .addComponent(jLabel1)
-                .addContainerGap(219, Short.MAX_VALUE))
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(filePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(startButton)
+                    .addComponent(reloadBtn))
+                .addContainerGap())
         );
-
-        jTabbedPane1.addTab("File Watcher", filePanel);
-
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 395, Short.MAX_VALUE)
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 253, Short.MAX_VALUE)
-        );
-
-        jTabbedPane1.addTab("tab2", jPanel2);
 
         fileMenu.setText("File");
 
@@ -176,11 +282,11 @@ public class MainFrame extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane1)
+            .addComponent(filePanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane1)
+            .addComponent(filePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
@@ -207,6 +313,22 @@ public class MainFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_saveCfgFileActionPerformed
 
+    private void reloadBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reloadBtnActionPerformed
+        m_fileModule.loadProperties();
+    }//GEN-LAST:event_reloadBtnActionPerformed
+
+    private void startButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startButtonActionPerformed
+        if("Start".equals(startButton.getText())) {
+            m_fileModule.start();
+            dirWatcherLabel.setText(m_fileModule.getDirectoryWatcher());
+            reloadBtn.setEnabled(false);
+        }
+        if("Stop".equals(startButton.getText())) {
+            m_fileModule.stop();
+        }
+        startButton.setEnabled(false);
+    }//GEN-LAST:event_startButtonActionPerformed
+
     public final void setLook(String f_strLook) {
         try {
             for( Component o: lookMenu.getMenuComponents() )
@@ -223,29 +345,31 @@ public class MainFrame extends javax.swing.JFrame {
             
             m_properties.setProperty(ms_strPkgName+".look", f_strLook);
         }
-        catch (ClassNotFoundException ex) {
-            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (UnsupportedLookAndFeelException ex) {
+        catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
             Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel dirWatcherLabel;
+    private javax.swing.JLabel dirWatcherMsgLabel;
     private javax.swing.JMenuItem exitButton;
     private javax.swing.JMenu fileMenu;
     private javax.swing.JPanel filePanel;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPopupMenu.Separator jSeparator1;
-    private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JMenu lookMenu;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JMenuItem optionsButton;
+    private javax.swing.JButton reloadBtn;
     private javax.swing.JMenuItem saveCfgFile;
+    private javax.swing.JButton startButton;
+    private javax.swing.JLabel statusLabel;
+    private javax.swing.JLabel statusMsgLabel;
     private javax.swing.JMenu toolsMenu;
     // End of variables declaration//GEN-END:variables
 }
