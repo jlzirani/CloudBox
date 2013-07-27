@@ -20,37 +20,48 @@ import cloudbox.module.AModule;
 import cloudbox.module.Message;
 import java.io.IOException;
 import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ClientModule extends AModule {
+    private String m_host;
+    private short m_port;
     private DownStream m_downStream;
     private UpStream m_upStream;
-    
+
     @Override
     public void notify(Message f_msg) {
         m_upStream.notify(f_msg);
     }
 
-    public ClientModule(Socket f_sockClient) throws IOException {
-        NetHandler netHandler = new NetHandler(f_sockClient);
+    public ClientModule(Socket f_client) throws IOException {
+        NetHandler netHandler = new NetHandler(f_client);
         m_downStream = new DownStream(this, netHandler);
         m_upStream = new UpStream(netHandler);
     }
+
     
-    public ClientModule( String localhost, short s) throws IOException {
-        Socket client = new Socket(localhost, s);
-        NetHandler netHandler = new NetHandler(client);
-        m_downStream = new DownStream(this, netHandler);
-        m_upStream = new UpStream(netHandler);
+    public ClientModule( String f_host, short f_port) {
+        m_host = f_host;
+        m_port = f_port;
     }
     
     @Override
     public void start() {
-        m_downStream.start();
-        m_upStream.start();
-    }
-
-    public void join() throws InterruptedException {
-        m_downStream.join();
+        try {
+            Socket client = new Socket(m_host, m_port);
+            NetHandler netHandler = new NetHandler(client);
+            m_downStream = new DownStream(this, netHandler);
+            m_upStream = new UpStream(netHandler);
+            
+            m_downStream.start();
+            m_upStream.start();
+        } catch (UnknownHostException ex) {
+            Logger.getLogger(ClientModule.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(ClientModule.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     @Override

@@ -16,10 +16,11 @@
  */
 package cloudbox.module.network;
 
-import cloudbox.module.file.FileModule;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -27,35 +28,27 @@ import java.net.Socket;
  */
 
 public class Server {
-    private FileModule m_fileActor;
+    private static final Logger logger =  Logger.getLogger(Server.class.getName());
+    private NetModule m_netModule;
     private int m_iPort;
     
-    public Server(FileModule f_fileActor, int f_iPort) {
-        m_fileActor= f_fileActor;
+    public Server(NetModule f_netModule, int f_iPort) {
+        m_netModule = f_netModule;
         m_iPort = f_iPort;
     }
-    
-    public Server(FileModule f_fileActor) {
-        m_fileActor= f_fileActor;
-        m_iPort = 1337;
-    }   
-    
-        public void run() {
+     
+    public void run() {
         try {
             ServerSocket socket = new ServerSocket(m_iPort);
             socket.getReuseAddress();
             while(true) {
                 Socket client = socket.accept();
-                ClientModule peer = new ClientModule(client);
-                peer.attach(m_fileActor);
-                m_fileActor.attach(peer);
-                peer.start();                
+                try {
+                    m_netModule.addClient(new ClientModule(client));
+                } catch (IOException ex) 
+                {   logger.log(Level.SEVERE, null, ex); }
             }
-            
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-    
-    
+        } catch (IOException ex) 
+        {   logger.log(Level.SEVERE, null, ex); }
     }
-    }
+}

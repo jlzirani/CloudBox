@@ -18,23 +18,43 @@
 package cloudbox.module.network;
 
 import cloudbox.module.AModule;
+import cloudbox.module.IModule;
 import cloudbox.module.Message;
+import java.util.ArrayList;
+import java.util.logging.Logger;
 
 /**
  *
  * @author jlzirani
  */
 
-
 public class NetModule extends AModule {
-    static private String ms_strPkgName = NetModule.class.getPackage().getName();
-    private int m_port;
+    private static String ms_strPkgName = NetModule.class.getPackage().getName();
+    private static final Logger logger =  Logger.getLogger(NetModule.class.getName());
+    private final ArrayList m_vecClient = new ArrayList();
+    private Server m_Server = null;
+    private short m_port;
     private String m_host;
     private boolean m_bServer;
+
+    @Override
+    public void notify(Message f_msg) {
+        synchronized(m_vecClient) {
+            for(Object o: m_vecClient)
+            {   ((IModule)o).notify(f_msg); }
+        }
+    }
+
+    private void startServer() {
+        
+    }
     
     @Override
     public void start() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if(m_bServer)   
+        {   startServer();  }
+        else
+        {   addClient(new ClientModule(m_host, m_port));  }
     }
 
     @Override
@@ -65,7 +85,7 @@ public class NetModule extends AModule {
             }
             m_host = m_properties.getProperty(ms_strPkgName+".server");
         }
-        m_port = Integer.parseInt(m_properties.getProperty(ms_strPkgName+".port"));
+        m_port = Short.parseShort(m_properties.getProperty(ms_strPkgName+".port"));
         
         m_bServer = "Server".equals(m_properties.getProperty(ms_strPkgName+".mode"));
     }
@@ -83,10 +103,18 @@ public class NetModule extends AModule {
     public String getHost() {
         return m_host;
     }
-    
-    @Override
-    public void notify(Message f_msg) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
+    void addClient(ClientModule clientModule) {
+        
+        synchronized(m_vecActors){
+            for( Object o: m_vecActors )
+            {   clientModule.attach((IModule)o);    }
+        }
+        
+        synchronized(m_vecClient) {
+                m_vecClient.add(new ClientModule(m_host, m_port));
+        }
+        
+        clientModule.start();
     }
-    
 }

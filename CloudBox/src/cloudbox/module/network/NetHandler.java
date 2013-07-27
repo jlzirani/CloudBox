@@ -35,7 +35,6 @@ public class NetHandler {
         m_streamInput = new DataInputStream(m_socket.getInputStream());
     }
     
-    
     public void sendCommand(Command f_cmd) throws IOException{
         byte[] vecCommand = f_cmd.serializable();
         
