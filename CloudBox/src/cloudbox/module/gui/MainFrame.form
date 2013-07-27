@@ -155,10 +155,10 @@
                           <Group type="102" attributes="0">
                               <Component id="statusMsgLabel" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="statusLabel" max="32767" attributes="0"/>
+                              <Component id="fileStatusLabel" pref="369" max="32767" attributes="0"/>
                           </Group>
                           <Group type="102" attributes="0">
-                              <Component id="dirWatcherMsgLabel" min="-2" pref="93" max="-2" attributes="0"/>
+                              <Component id="dirWatcherMsgLabel" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="dirWatcherLabel" max="32767" attributes="0"/>
                           </Group>
@@ -171,7 +171,7 @@
                   <Group type="102" alignment="0" attributes="0">
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="statusMsgLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="statusLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="fileStatusLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
@@ -188,9 +188,9 @@
                 <Property name="text" type="java.lang.String" value="Status :"/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JLabel" name="statusLabel">
+            <Component class="javax.swing.JLabel" name="fileStatusLabel">
               <Properties>
-                <Property name="text" type="java.lang.String" value="STOPPED"/>
+                <Property name="text" type="java.lang.String" value="jLabel"/>
               </Properties>
             </Component>
             <Component class="javax.swing.JLabel" name="dirWatcherMsgLabel">
@@ -200,7 +200,7 @@
             </Component>
             <Component class="javax.swing.JLabel" name="dirWatcherLabel">
               <Properties>
-                <Property name="text" type="java.lang.String" value="av"/>
+                <Property name="text" type="java.lang.String" value="jLabel"/>
               </Properties>
             </Component>
           </SubComponents>
@@ -220,41 +220,76 @@
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="jLabel1" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel2" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel3" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Group type="102" attributes="0">
+                              <Component id="msgStatusLabel" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="netStatusLabel" max="32767" attributes="0"/>
+                          </Group>
+                          <Group type="102" attributes="0">
+                              <Component id="msgServerLabel" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="serverLabel" max="32767" attributes="0"/>
+                          </Group>
+                          <Group type="102" attributes="0">
+                              <Component id="msgModeLabel" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="modeLabel" max="32767" attributes="0"/>
+                          </Group>
                       </Group>
-                      <EmptySpace max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="msgModeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="modeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="msgServerLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="serverLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="0" pref="101" max="32767" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="msgStatusLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="netStatusLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace min="0" pref="102" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
           </Layout>
           <SubComponents>
-            <Component class="javax.swing.JLabel" name="jLabel1">
+            <Component class="javax.swing.JLabel" name="msgModeLabel">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Mode :"/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JLabel" name="jLabel2">
+            <Component class="javax.swing.JLabel" name="msgServerLabel">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Server :"/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JLabel" name="jLabel3">
+            <Component class="javax.swing.JLabel" name="msgStatusLabel">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Status :"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JLabel" name="netStatusLabel">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="jLabel"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JLabel" name="modeLabel">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="jLabel"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JLabel" name="serverLabel">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="jLabel"/>
               </Properties>
             </Component>
           </SubComponents>

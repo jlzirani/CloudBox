@@ -16,8 +16,8 @@
  */
 package cloudbox.module.gui;
 
-import cloudbox.module.IModule.Status;
 import cloudbox.module.file.FileModule;
+import cloudbox.module.network.NetModule;
 import java.awt.Component;
 import java.io.FileOutputStream;
 import static java.util.concurrent.TimeUnit.*;
@@ -40,6 +40,7 @@ public class MainFrame extends javax.swing.JFrame {
     private OptionFrame optionFrame;
     private Properties m_properties;
     private FileModule m_fileModule;
+    private NetModule m_netModule;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     static private String ms_strPkgName =MainFrame.class.getPackage().getName();
   
@@ -51,9 +52,12 @@ public class MainFrame extends javax.swing.JFrame {
         setTitle("CloudBox");
         
         m_properties = f_prop;
-        m_fileModule = new FileModule();
-        m_fileModule.setProperties(m_properties);
         
+        m_fileModule = new FileModule();
+        m_netModule = new NetModule();
+        
+        m_fileModule.setProperties(m_properties);
+        m_netModule.setProperties(m_properties);
         optionFrame = new OptionFrame(m_properties);
        
         for (final javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
@@ -82,12 +86,18 @@ public class MainFrame extends javax.swing.JFrame {
         final StatusWatcher statusWatcher = new StatusWatcher();
         
         statusWatcher.setFileModule(m_fileModule);
+        statusWatcher.setNetModule(m_netModule);
+        
+        statusWatcher.setNetStatusLabel(netStatusLabel);
+        statusWatcher.setDirLabel(dirWatcherLabel);
+        statusWatcher.setFileStatusLabel(fileStatusLabel);
+        statusWatcher.setModeLabel(modeLabel);
+        statusWatcher.setServerLabel(serverLabel);        
+        
         statusWatcher.setReloadButton(reloadBtn);
         statusWatcher.setStartButton(startButton);
-        statusWatcher.setStatusLabel(statusLabel);
         
         statusWatcher.run(); // run once to update the status :)
-        dirWatcherLabel.setText(m_fileModule.getDirectoryWatcher());
         //set the directory watcher label :)
         
         // Schedule this task on each SECONDS
@@ -108,13 +118,16 @@ public class MainFrame extends javax.swing.JFrame {
         reloadBtn = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         statusMsgLabel = new javax.swing.JLabel();
-        statusLabel = new javax.swing.JLabel();
+        fileStatusLabel = new javax.swing.JLabel();
         dirWatcherMsgLabel = new javax.swing.JLabel();
         dirWatcherLabel = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
+        msgModeLabel = new javax.swing.JLabel();
+        msgServerLabel = new javax.swing.JLabel();
+        msgStatusLabel = new javax.swing.JLabel();
+        netStatusLabel = new javax.swing.JLabel();
+        modeLabel = new javax.swing.JLabel();
+        serverLabel = new javax.swing.JLabel();
         menuBar = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
         saveCfgFile = new javax.swing.JMenuItem();
@@ -144,11 +157,11 @@ public class MainFrame extends javax.swing.JFrame {
 
         statusMsgLabel.setText("Status :");
 
-        statusLabel.setText("STOPPED");
+        fileStatusLabel.setText("jLabel");
 
         dirWatcherMsgLabel.setText("Directory watcher :");
 
-        dirWatcherLabel.setText("av");
+        dirWatcherLabel.setText("jLabel");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -160,9 +173,9 @@ public class MainFrame extends javax.swing.JFrame {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(statusMsgLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(statusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(fileStatusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 369, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(dirWatcherMsgLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(dirWatcherMsgLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(dirWatcherLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
@@ -171,7 +184,7 @@ public class MainFrame extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(statusMsgLabel)
-                    .addComponent(statusLabel))
+                    .addComponent(fileStatusLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(dirWatcherMsgLabel)
@@ -180,11 +193,17 @@ public class MainFrame extends javax.swing.JFrame {
 
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Network"));
 
-        jLabel1.setText("Mode :");
+        msgModeLabel.setText("Mode :");
 
-        jLabel2.setText("Server :");
+        msgServerLabel.setText("Server :");
 
-        jLabel3.setText("Status :");
+        msgStatusLabel.setText("Status :");
+
+        netStatusLabel.setText("jLabel");
+
+        modeLabel.setText("jLabel");
+
+        serverLabel.setText("jLabel");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -193,20 +212,34 @@ public class MainFrame extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel1)
-                    .addComponent(jLabel2)
-                    .addComponent(jLabel3))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(msgStatusLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(netStatusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(msgServerLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(serverLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(msgModeLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(modeLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addComponent(jLabel1)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(msgModeLabel)
+                    .addComponent(modeLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel2)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(msgServerLabel)
+                    .addComponent(serverLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel3)
-                .addGap(0, 101, Short.MAX_VALUE))
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(msgStatusLabel)
+                    .addComponent(netStatusLabel))
+                .addGap(0, 102, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout filePanelLayout = new javax.swing.GroupLayout(filePanel);
@@ -356,19 +389,22 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem exitButton;
     private javax.swing.JMenu fileMenu;
     private javax.swing.JPanel filePanel;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel fileStatusLabel;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JMenu lookMenu;
     private javax.swing.JMenuBar menuBar;
+    private javax.swing.JLabel modeLabel;
+    private javax.swing.JLabel msgModeLabel;
+    private javax.swing.JLabel msgServerLabel;
+    private javax.swing.JLabel msgStatusLabel;
+    private javax.swing.JLabel netStatusLabel;
     private javax.swing.JMenuItem optionsButton;
     private javax.swing.JButton reloadBtn;
     private javax.swing.JMenuItem saveCfgFile;
+    private javax.swing.JLabel serverLabel;
     private javax.swing.JButton startButton;
-    private javax.swing.JLabel statusLabel;
     private javax.swing.JLabel statusMsgLabel;
     private javax.swing.JMenu toolsMenu;
     // End of variables declaration//GEN-END:variables

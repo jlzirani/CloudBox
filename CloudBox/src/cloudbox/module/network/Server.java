@@ -16,7 +16,7 @@
  */
 package cloudbox.module.network;
 
-import cloudbox.module.file.FileFacade;
+import cloudbox.module.file.FileModule;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -27,15 +27,15 @@ import java.net.Socket;
  */
 
 public class Server {
-    private FileFacade m_fileActor;
+    private FileModule m_fileActor;
     private int m_iPort;
     
-    public Server(FileFacade f_fileActor, int f_iPort) {
+    public Server(FileModule f_fileActor, int f_iPort) {
         m_fileActor= f_fileActor;
         m_iPort = f_iPort;
     }
     
-    public Server(FileFacade f_fileActor) {
+    public Server(FileModule f_fileActor) {
         m_fileActor= f_fileActor;
         m_iPort = 1337;
     }   
@@ -46,7 +46,7 @@ public class Server {
             socket.getReuseAddress();
             while(true) {
                 Socket client = socket.accept();
-                NetFacade peer = new NetFacade(client);
+                ClientModule peer = new ClientModule(client);
                 peer.attach(m_fileActor);
                 m_fileActor.attach(peer);
                 peer.start();                

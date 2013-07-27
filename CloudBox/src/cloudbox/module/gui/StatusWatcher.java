@@ -21,14 +21,23 @@ import cloudbox.module.IModule;
 import cloudbox.module.IModule.Status;
 import static cloudbox.module.IModule.Status.RUNNING;
 import static cloudbox.module.IModule.Status.STOPPED;
+import cloudbox.module.file.FileModule;
+import cloudbox.module.network.NetModule;
+import javax.swing.JLabel;
 
 
 public class StatusWatcher implements Runnable {
-    private Status m_oldState = Status.ERROR;
-    private IModule m_fileModule;
+    private Status m_fileOldState = Status.ERROR;
+    private FileModule m_fileModule;
     private javax.swing.JButton reloadBtn;
     private javax.swing.JButton startButton;
     private javax.swing.JLabel statusLabel;
+    private NetModule m_netModule;
+    private JLabel netStatusLabel;
+    private JLabel modeLabel;
+    private JLabel serverLabel;
+    private JLabel dirWatcherLabel;
+    private Status m_netOldState;
     
     public void setReloadButton(javax.swing.JButton f_reloadBtn)
     {   reloadBtn = f_reloadBtn;    }
@@ -36,23 +45,39 @@ public class StatusWatcher implements Runnable {
     public void setStartButton(javax.swing.JButton f_startButton) 
     {    startButton = f_startButton;    }    
     
-    public void setStatusLabel(javax.swing.JLabel f_statusLabel)
+    public void setFileStatusLabel(javax.swing.JLabel f_statusLabel)
     {   statusLabel = f_statusLabel;    }
     
-    public void setFileModule(IModule f_fileModule)
+    public void setFileModule(FileModule f_fileModule)
     {   m_fileModule = f_fileModule; }
     
-    @Override
-    public void run() {
+    void setNetModule(NetModule f_netModule) 
+    {   m_netModule = f_netModule;  }
+
+    void setNetStatusLabel(JLabel f_netStatusLabel) 
+    {   netStatusLabel = f_netStatusLabel;  }
+
+    void setModeLabel(JLabel f_modeLabel) 
+    {   modeLabel = f_modeLabel;    }
+
+    void setServerLabel(JLabel f_serverLabel) 
+    {   serverLabel = f_serverLabel;    }
+    
+    void setDirLabel(JLabel f_dirWatcherLabel) 
+    {   dirWatcherLabel = f_dirWatcherLabel;    }
+    
+   
+    public void setFileStatus() {
         IModule.Status status = m_fileModule.status();
         switch(status) {
-            case RUNNING: if(m_oldState != IModule.Status.RUNNING) {
+            case RUNNING: if(m_fileOldState != IModule.Status.RUNNING) {
                             statusLabel.setText("Running");
                             startButton.setText("Stop"); 
                             startButton.setEnabled(true);
+                            
                           }
                           break;
-            case STOPPED: if(m_oldState != IModule.Status.STOPPED) {
+            case STOPPED: if(m_fileOldState != IModule.Status.STOPPED) {
                             reloadBtn.setEnabled(true);
                             statusLabel.setText("Stopped");
                             startButton.setText("Start"); 
@@ -61,6 +86,35 @@ public class StatusWatcher implements Runnable {
                           break;
             default: statusLabel.setText("Error"); break;
         }
-        m_oldState = status;
+        dirWatcherLabel.setText(m_fileModule.getDirectoryWatcher());
+        m_fileOldState = status;
     }
+    
+    public void setNetStatus() {
+        IModule.Status status = m_netModule.status();
+        switch(status) {
+            case RUNNING: if(m_netOldState != IModule.Status.RUNNING) {
+                            netStatusLabel.setText("Running");
+                          }
+                          break;
+            case STOPPED: if(m_netOldState != IModule.Status.STOPPED) {
+                            netStatusLabel.setText("STOPPED");
+                          }
+                          break;
+            default: statusLabel.setText("Error"); break;
+        }
+        modeLabel.setText(m_netModule.getMode());
+        serverLabel.setText(m_netModule.getHost()+":"+m_netModule.getPort());
+        m_netOldState = status;
+    }
+        
+    
+    @Override
+    public void run() {
+        setFileStatus();
+        setNetStatus();
+    }
+
+ 
+
 }

@@ -18,12 +18,10 @@
 package cloudbox.module.network;
 import cloudbox.module.AModule;
 import cloudbox.module.Message;
-import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
 
-public class NetFacade extends AModule {
-    static private String ms_strPkgName=NetFacade.class.getPackage().getName();
+public class ClientModule extends AModule {
     private DownStream m_downStream;
     private UpStream m_upStream;
     
@@ -32,13 +30,13 @@ public class NetFacade extends AModule {
         m_upStream.notify(f_msg);
     }
 
-    public NetFacade(Socket f_sockClient) throws IOException {
+    public ClientModule(Socket f_sockClient) throws IOException {
         NetHandler netHandler = new NetHandler(f_sockClient);
         m_downStream = new DownStream(this, netHandler);
         m_upStream = new UpStream(netHandler);
     }
     
-    public NetFacade( String localhost, short s) throws IOException {
+    public ClientModule( String localhost, short s) throws IOException {
         Socket client = new Socket(localhost, s);
         NetHandler netHandler = new NetHandler(client);
         m_downStream = new DownStream(this, netHandler);
@@ -53,7 +51,6 @@ public class NetFacade extends AModule {
 
     public void join() throws InterruptedException {
         m_downStream.join();
-        
     }
     
     @Override
@@ -69,15 +66,7 @@ public class NetFacade extends AModule {
 
     @Override
     public void loadProperties() {
-        if(!m_properties.containsKey(ms_strPkgName+".mode")) {   
-            m_properties.setProperty(ms_strPkgName+".mode", 
-                    "client");
-        }
-    
-        if(!m_properties.containsKey(ms_strPkgName+".port")) {   
-            m_properties.setProperty(ms_strPkgName+".port", 
-                    "1337");
-        }
+
         
     }
 
