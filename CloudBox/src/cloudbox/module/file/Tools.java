@@ -18,7 +18,7 @@
 package cloudbox.module.file;
 
 import java.io.File;
-import tools.Command;
+import cloudbox.module.Command;
 
 
 public class Tools {

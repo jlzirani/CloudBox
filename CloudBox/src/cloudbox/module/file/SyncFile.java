@@ -26,7 +26,7 @@ import java.nio.file.*;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import tools.Command;
+import cloudbox.module.Command;
 /**
  *
  * @author jlzirani

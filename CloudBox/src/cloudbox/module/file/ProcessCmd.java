@@ -26,8 +26,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import tools.Command;
-import static tools.Command.eType.*;
+import cloudbox.module.Command;
+import static cloudbox.module.Command.eType.*;
 
 
 public class ProcessCmd implements Runnable {

@@ -17,7 +17,6 @@
 package cloudbox.module;
 
 import java.util.Properties;
-import tools.Command;
 
 /**
  *

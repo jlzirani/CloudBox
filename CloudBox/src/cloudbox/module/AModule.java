@@ -19,7 +19,6 @@ package cloudbox.module;
 
 import java.util.ArrayList;
 import java.util.Properties;
-import tools.Command;
 
 public abstract class AModule implements IModule{
     final protected ArrayList m_vecActors = new ArrayList();

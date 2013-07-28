@@ -19,7 +19,7 @@ package cloudbox.module.network;
 
 import cloudbox.module.IModule;
 import java.io.IOException;
-import tools.Command;
+import cloudbox.module.Command;
 
 
 public class DownStream extends Thread{

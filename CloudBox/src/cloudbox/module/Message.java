@@ -17,8 +17,6 @@
 
 package cloudbox.module;
 
-import tools.Command;
-
 
 public class Message {
     //private AModule m_from;

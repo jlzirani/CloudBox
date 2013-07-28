@@ -21,7 +21,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import tools.Command;
+import cloudbox.module.Command;
 
 public class NetHandler {
     private Socket m_socket = null;
