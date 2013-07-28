@@ -65,8 +65,7 @@ public class StatusWatcher implements Runnable {
     
     void setDirLabel(JLabel f_dirWatcherLabel) 
     {   dirWatcherLabel = f_dirWatcherLabel;    }
-    
-   
+       
     public void setFileStatus() {
         IModule.Status status = m_fileModule.status();
         switch(status) {
@@ -98,7 +97,7 @@ public class StatusWatcher implements Runnable {
                           }
                           break;
             case STOPPED: if(m_netOldState != IModule.Status.STOPPED) {
-                            netStatusLabel.setText("STOPPED");
+                            netStatusLabel.setText("Stopped");
                           }
                           break;
             default: statusLabel.setText("Error"); break;
