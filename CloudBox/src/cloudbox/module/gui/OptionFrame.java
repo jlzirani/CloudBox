@@ -187,20 +187,10 @@ public class OptionFrame extends JDialog {
         portLabel.setText("port :");
 
         portField.setText("1337");
-        portField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                portFieldActionPerformed(evt);
-            }
-        });
 
         hostLabel.setText("Host address:");
 
         hostField.setText("localhost");
-        hostField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                hostFieldActionPerformed(evt);
-            }
-        });
 
         javax.swing.GroupLayout networkPanelLayout = new javax.swing.GroupLayout(networkPanel);
         networkPanel.setLayout(networkPanelLayout);
@@ -243,6 +233,11 @@ public class OptionFrame extends JDialog {
         });
 
         applyButton.setText("Apply");
+        applyButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                applyButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -265,7 +260,7 @@ public class OptionFrame extends JDialog {
                 .addComponent(generalPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(networkPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 8, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(okButton)
                     .addComponent(applyButton)
@@ -305,35 +300,29 @@ public class OptionFrame extends JDialog {
         setServerPanel();
     }//GEN-LAST:event_serverModeActionPerformed
 
-    private void portFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_portFieldActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_portFieldActionPerformed
-
-    private void hostFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hostFieldActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_hostFieldActionPerformed
-
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
         this.dispose();
     }//GEN-LAST:event_cancelButtonActionPerformed
 
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
-        
-        if(serverMode.isSelected()) {
-            m_properties.setProperty("mode", "server"); 
-            m_properties.remove("host");
-        }
-        else {   
-            m_properties.setProperty("mode", "client"); 
-            m_properties.setProperty("host", hostField.getText());
-        }
-        
-        m_properties.setProperty("port", portField.getText());
-        m_properties.setProperty(FileModule.class.getPackage().getName()+".directory", directoryField.getText());
-        
-            
+        applyButtonActionPerformed(evt);
+                   
         this.dispose();
     }//GEN-LAST:event_okButtonActionPerformed
+
+    private void applyButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_applyButtonActionPerformed
+        if(serverMode.isSelected()) {
+            m_properties.setProperty(ms_netPackage+".mode", "server"); 
+            m_properties.remove(ms_netPackage+".host");
+        }
+        else {   
+            m_properties.setProperty(ms_netPackage+".mode", "client"); 
+            m_properties.setProperty(ms_netPackage+".host", hostField.getText());
+        }
+        
+        m_properties.setProperty(ms_netPackage+".port", portField.getText());
+        m_properties.setProperty(FileModule.class.getPackage().getName()+".directory", directoryField.getText());
+    }//GEN-LAST:event_applyButtonActionPerformed
 
     /**
      * @param args the command line arguments

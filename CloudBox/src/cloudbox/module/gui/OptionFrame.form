@@ -213,9 +213,6 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="1337"/>
           </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="portFieldActionPerformed"/>
-          </Events>
         </Component>
         <Component class="javax.swing.JLabel" name="hostLabel">
           <Properties>
@@ -226,9 +223,6 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="localhost"/>
           </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="hostFieldActionPerformed"/>
-          </Events>
         </Component>
       </SubComponents>
     </Container>
@@ -252,6 +246,9 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="Apply"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="applyButtonActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>

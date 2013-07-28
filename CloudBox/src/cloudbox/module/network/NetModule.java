@@ -46,7 +46,7 @@ public class NetModule extends AModule {
     }
 
     private void startServer() {
-        
+        // @TODO
     }
     
     @Override
@@ -59,12 +59,34 @@ public class NetModule extends AModule {
 
     @Override
     public void stop() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        synchronized(m_vecClient) {
+            for( Object o: m_vecClient )
+            {   ((IModule)o).stop();    }
+            m_vecClient.clear();
+        }
+        
+        if(m_Server != null) 
+        {   m_Server.stop();  }
     }
 
     @Override
     public Status status() {
-        return Status.STOPPED;
+        Status status;
+        if(m_bServer) {            
+            if(m_Server != null)
+                status = Status.RUNNING;
+            else
+                status = Status.STOPPED;
+        }
+        else {
+            synchronized(m_vecClient) {
+                if(m_vecClient.isEmpty())
+                    status = Status.STOPPED;
+                else
+                    status = ((IModule)m_vecClient.get(0)).status();
+            }
+        }
+        return status;
     }
 
     @Override

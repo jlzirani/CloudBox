@@ -23,69 +23,34 @@ import static cloudbox.module.IModule.Status.RUNNING;
 import static cloudbox.module.IModule.Status.STOPPED;
 import cloudbox.module.file.FileModule;
 import cloudbox.module.network.NetModule;
-import javax.swing.JLabel;
 
 
 public class StatusWatcher implements Runnable {
     private Status m_fileOldState = Status.ERROR;
     private FileModule m_fileModule;
-    private javax.swing.JButton reloadBtn;
-    private javax.swing.JButton startButton;
-    private javax.swing.JLabel statusLabel;
     private NetModule m_netModule;
-    private JLabel netStatusLabel;
-    private JLabel modeLabel;
-    private JLabel serverLabel;
-    private JLabel dirWatcherLabel;
     private Status m_netOldState;
-    
-    public void setReloadButton(javax.swing.JButton f_reloadBtn)
-    {   reloadBtn = f_reloadBtn;    }
-    
-    public void setStartButton(javax.swing.JButton f_startButton) 
-    {    startButton = f_startButton;    }    
-    
-    public void setFileStatusLabel(javax.swing.JLabel f_statusLabel)
-    {   statusLabel = f_statusLabel;    }
-    
-    public void setFileModule(FileModule f_fileModule)
-    {   m_fileModule = f_fileModule; }
-    
-    void setNetModule(NetModule f_netModule) 
-    {   m_netModule = f_netModule;  }
-
-    void setNetStatusLabel(JLabel f_netStatusLabel) 
-    {   netStatusLabel = f_netStatusLabel;  }
-
-    void setModeLabel(JLabel f_modeLabel) 
-    {   modeLabel = f_modeLabel;    }
-
-    void setServerLabel(JLabel f_serverLabel) 
-    {   serverLabel = f_serverLabel;    }
-    
-    void setDirLabel(JLabel f_dirWatcherLabel) 
-    {   dirWatcherLabel = f_dirWatcherLabel;    }
+    private MainFrame mainFrame;
        
     public void setFileStatus() {
         IModule.Status status = m_fileModule.status();
         switch(status) {
             case RUNNING: if(m_fileOldState != IModule.Status.RUNNING) {
-                            statusLabel.setText("Running");
-                            startButton.setText("Stop"); 
-                            startButton.setEnabled(true);
-                            
+                            mainFrame.fileStatusLabel.setText("Running");
+                            mainFrame.fileStartButton.setText("Stop"); 
+                            mainFrame.fileStartButton.setEnabled(true);                            
                           }
                           break;
             case STOPPED: if(m_fileOldState != IModule.Status.STOPPED) {
-                            reloadBtn.setEnabled(true);
-                            statusLabel.setText("Stopped");
-                            startButton.setText("Start"); 
-                            startButton.setEnabled(true);
+                            mainFrame.fileReloadBtn.setEnabled(true);
+                            mainFrame.fileStatusLabel.setText("Stopped");
+                            mainFrame.fileStartButton.setText("Start"); 
+                            mainFrame.fileStartButton.setEnabled(true);
                           }
                           break;
-            default: statusLabel.setText("Error"); break;
+            default: mainFrame.fileStatusLabel.setText("Error"); break;
         }
-        dirWatcherLabel.setText(m_fileModule.getDirectoryWatcher());
+        mainFrame.dirWatcherLabel.setText(m_fileModule.getDirectoryWatcher());
         m_fileOldState = status;
     }
     
@@ -93,17 +58,19 @@ public class StatusWatcher implements Runnable {
         IModule.Status status = m_netModule.status();
         switch(status) {
             case RUNNING: if(m_netOldState != IModule.Status.RUNNING) {
-                            netStatusLabel.setText("Running");
+                          mainFrame.netStatusLabel.setText("Running");
+                          mainFrame.netStartButton.setText("Stop");
                           }
                           break;
             case STOPPED: if(m_netOldState != IModule.Status.STOPPED) {
-                            netStatusLabel.setText("Stopped");
+                            mainFrame.netStatusLabel.setText("Stopped");
+                            mainFrame.netStartButton.setText("Start");
                           }
                           break;
-            default: statusLabel.setText("Error"); break;
+            default: mainFrame.netStatusLabel.setText("Error"); break;
         }
-        modeLabel.setText(m_netModule.getMode());
-        serverLabel.setText(m_netModule.getHost()+":"+m_netModule.getPort());
+        mainFrame.modeLabel.setText(m_netModule.getMode());
+        mainFrame.serverLabel.setText(m_netModule.getHost()+":"+m_netModule.getPort());
         m_netOldState = status;
     }
         
@@ -112,8 +79,22 @@ public class StatusWatcher implements Runnable {
     public void run() {
         setFileStatus();
         setNetStatus();
+        if(m_fileOldState == Status.STOPPED && m_netOldState == Status.STOPPED
+                && !mainFrame.reloadBtn.isEnabled())
+            mainFrame.reloadBtn.setEnabled(true);
+            
     }
 
- 
+    void setMainFrame(MainFrame aThis) {
+        mainFrame = aThis;
+    }
+
+    void setFileModule(FileModule f_fileModule) {
+        m_fileModule = f_fileModule;
+    }
+
+    void setNetModule(NetModule f_netModule) {
+        m_netModule = f_netModule;
+    }
 
 }

@@ -29,7 +29,7 @@ public class ClientModule extends AModule {
     private short m_port;
     private DownStream m_downStream;
     private UpStream m_upStream;
-
+    
     @Override
     public void notify(Message f_msg) {
         m_upStream.notify(f_msg);
@@ -40,7 +40,6 @@ public class ClientModule extends AModule {
         m_downStream = new DownStream(this, netHandler);
         m_upStream = new UpStream(netHandler);
     }
-
     
     public ClientModule( String f_host, short f_port) {
         m_host = f_host;
@@ -72,7 +71,12 @@ public class ClientModule extends AModule {
 
     @Override
     public Status status() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Status status = Status.ERROR;
+        if( m_downStream != null & m_upStream != null)
+            status = Status.RUNNING;
+        if( m_downStream == null & m_upStream == null)
+            status = Status.STOPPED;
+        return status;
     }
 
     @Override
