@@ -17,6 +17,7 @@
 package cloudbox.module.gui;
 
 import cloudbox.module.file.FileModule;
+import cloudbox.module.network.NetModule;
 import java.io.File;
 import java.util.Properties;
 import javax.swing.JDialog;
@@ -29,6 +30,8 @@ import javax.swing.JFileChooser;
 public class OptionFrame extends JDialog {
 
     private Properties m_properties;
+    static private String ms_filePackage = FileModule.class.getPackage().getName();
+    static private String ms_netPackage = NetModule.class.getPackage().getName();
     
     /**
      * Creates new form OptionFrame
@@ -44,17 +47,17 @@ public class OptionFrame extends JDialog {
         this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         setTitle("Option");
         m_properties = f_properties;
+        
     }
     
     public void setProperties() {
-        switch(m_properties.getProperty("mode", "client")) {
-            case "client" : setClientProp(); break;
+        switch(m_properties.getProperty(ms_netPackage+".mode", "client")) {
             case "server" : setServerProp(); break;
             default: setClientProp();
         }
         
         directoryField.setText(m_properties.getProperty(
-                FileModule.class.getPackage().getName()+".directory", 
+                ms_filePackage + ".directory", 
                 System.getProperty("user.home")+File.separator+"CloudBox"+
                 File.separator));
     }
@@ -62,14 +65,14 @@ public class OptionFrame extends JDialog {
     private void setClientProp() {
         clientMode.setSelected(true);
         setClientPanel();
-        hostField.setText(m_properties.getProperty("host", "localhost"));
-        portField.setText(m_properties.getProperty("port", "1337"));
+        hostField.setText(m_properties.getProperty(ms_netPackage+".host", "localhost"));
+        portField.setText(m_properties.getProperty(ms_netPackage+".port", "1337"));
     }
 
     private void setServerProp() {
         serverMode.setSelected(true);
         setServerPanel();
-        portField.setText(m_properties.getProperty("port", "1337"));
+        portField.setText(m_properties.getProperty(ms_netPackage+".port", "1337"));
     }
     
     

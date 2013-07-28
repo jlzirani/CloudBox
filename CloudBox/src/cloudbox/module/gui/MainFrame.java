@@ -348,6 +348,7 @@ public class MainFrame extends javax.swing.JFrame {
 
     private void reloadBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reloadBtnActionPerformed
         m_fileModule.loadProperties();
+        m_netModule.loadProperties();
     }//GEN-LAST:event_reloadBtnActionPerformed
 
     private void startButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startButtonActionPerformed
