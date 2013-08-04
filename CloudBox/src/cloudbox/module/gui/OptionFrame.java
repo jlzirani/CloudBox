@@ -65,7 +65,7 @@ public class OptionFrame extends JDialog {
     private void setClientProp() {
         clientMode.setSelected(true);
         setClientPanel();
-        hostField.setText(m_properties.getProperty(ms_netPackage+".host", "localhost"));
+        hostField.setText(m_properties.getProperty(ms_netPackage+".server", "localhost"));
         portField.setText(m_properties.getProperty(ms_netPackage+".port", "1337"));
     }
 
@@ -313,11 +313,11 @@ public class OptionFrame extends JDialog {
     private void applyButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_applyButtonActionPerformed
         if(serverMode.isSelected()) {
             m_properties.setProperty(ms_netPackage+".mode", "server"); 
-            m_properties.remove(ms_netPackage+".host");
+            m_properties.remove(ms_netPackage+".server");
         }
         else {   
             m_properties.setProperty(ms_netPackage+".mode", "client"); 
-            m_properties.setProperty(ms_netPackage+".host", hostField.getText());
+            m_properties.setProperty(ms_netPackage+".server", hostField.getText());
         }
         
         m_properties.setProperty(ms_netPackage+".port", portField.getText());
