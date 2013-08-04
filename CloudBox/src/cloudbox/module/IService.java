@@ -20,8 +20,8 @@ package cloudbox.module;
  *
  * @author Zirani J.-L.
  */
-public interface IObserver {
+public interface IService {
     
-    /* notify observer */
-    public void notify(Message f_msg);
+    /* getNotification service */
+    public void getNotification(Message f_msg);
 }

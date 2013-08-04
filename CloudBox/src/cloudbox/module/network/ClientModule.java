@@ -31,7 +31,7 @@ public class ClientModule extends AModule {
     private UpStream m_upStream;
     
     @Override
-    public void notify(Message f_msg) {
+    public void getNotification(Message f_msg) {
         m_upStream.notify(f_msg);
     }
 

@@ -38,10 +38,10 @@ public class NetModule extends AModule {
     private boolean m_bServer;
 
     @Override
-    public void notify(Message f_msg) {
+    public void getNotification(Message f_msg) {
         synchronized(m_vecClient) {
             for(Object o: m_vecClient)
-            {   ((IModule)o).notify(f_msg); }
+            {   ((IModule)o).getNotification(f_msg); }
         }
     }
 
@@ -109,7 +109,7 @@ public class NetModule extends AModule {
         }
         m_port = Short.parseShort(m_properties.getProperty(ms_strPkgName+".port"));
         
-        m_bServer = "Server".equals(m_properties.getProperty(ms_strPkgName+".mode"));
+        m_bServer = "server".equals(m_properties.getProperty(ms_strPkgName+".mode"));
     }
     
     public String getMode() {
@@ -128,9 +128,9 @@ public class NetModule extends AModule {
 
     void addClient(ClientModule clientModule) {
         
-        synchronized(m_vecActors){
-            for( Object o: m_vecActors )
-            {   clientModule.attach((IModule)o);    }
+        synchronized(m_vecServices){
+            for( Object o: m_vecServices )
+            {   clientModule.attachService((IModule)o);    }
         }
         
         synchronized(m_vecClient) {

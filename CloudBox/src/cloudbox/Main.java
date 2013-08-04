@@ -49,8 +49,8 @@ public class Main {
 
             NetFacade client = new NetFacade( "localhost", (short)1337);
 
-            client.attach(file);
-            file.attach(client);
+            client.attachService(file);
+            file.attachService(client);
 
             client.start();
 

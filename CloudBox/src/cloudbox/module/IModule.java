@@ -22,17 +22,17 @@ import java.util.Properties;
  *
  * @author Zirani J.-L.
  */
-public interface IModule extends IObserver{
+public interface IModule extends IService{
     
     public static enum Status { RUNNING, STOPPED, ERROR };
     
-    /* attach observer */
-    public void attach(IObserver f_newObs);
-    public void dettach(IObserver f_newObs);
+    /* attach services */
+    public void attachService(IService f_newObs);
+    public void dettachService(IService f_newObs);
     
-    /* Notify all the observers */
-    public void notifyObs(Message f_msg);
-    public void notifyObs(Command f_cmd);
+    /* Notify all the services */
+    public void notifyServices(Message f_msg);
+    public void notifyServices(Command f_cmd);
         
     /* starting and stopping the module */
     public void start();

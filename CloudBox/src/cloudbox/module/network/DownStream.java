@@ -45,7 +45,7 @@ public class DownStream extends Thread{
             AskPropFile("/");
             while(true) {
                 Command cmd = m_netHandler.getCommand();
-                m_facade.notifyObs( cmd );
+                m_facade.notifyServices( cmd );
             }
         } catch (IOException ex) {
             ex.printStackTrace();

@@ -90,7 +90,7 @@ public class ProcessCmd implements Runnable {
             result.AddIndexFile( file.getName(), file.lastModified() );            
         }
         
-        f_msg.get_from().notify(new Message(m_facade, result));
+        f_msg.get_from().getNotification(new Message(m_facade, result));
    }
     
    private void index(Message f_msg){
@@ -118,11 +118,11 @@ public class ProcessCmd implements Runnable {
             {
                 Command requestFile = new Command(Command.eType.GETPROPFILE);
                 requestFile.setPath(strPathFile);
-                f_msg.get_from().notify(new Message(m_facade, requestFile));
+                f_msg.get_from().getNotification(new Message(m_facade, requestFile));
             }
             
             if(file.exists() && file.lastModified() > it.m_date) {
-                f_msg.get_from().notify(new Message(m_facade, 
+                f_msg.get_from().getNotification(new Message(m_facade, 
                            Tools.constructPropFile(m_strRootPath,strPathFile)));
             }
        }
@@ -133,7 +133,7 @@ public class ProcessCmd implements Runnable {
         Message msg = new Message(m_facade,  
                         Tools.constructPropFile(m_strRootPath,query.getPath()));
         
-        f_msg.get_from().notify(msg);
+        f_msg.get_from().getNotification(msg);
     }
     
     private void PropFile(Message f_msg) {
@@ -162,7 +162,7 @@ public class ProcessCmd implements Runnable {
         
         if(reponse != null) {
             reponse.setPath(query.getPath());
-            f_msg.get_from().notify(new Message(m_facade,reponse));
+            f_msg.get_from().getNotification(new Message(m_facade,reponse));
         }
     }
     
@@ -193,7 +193,7 @@ public class ProcessCmd implements Runnable {
             
             setLastDate(parent, parentDate);
 
-            f_msg.get_from().notify(new Message(m_facade,answer));
+            f_msg.get_from().getNotification(new Message(m_facade,answer));
         } catch (FileNotFoundException ex) {
             logger.log(Level.SEVERE, null, ex);
         } catch (IOException ex) {

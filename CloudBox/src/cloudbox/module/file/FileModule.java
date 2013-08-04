@@ -58,7 +58,7 @@ public class FileModule extends AModule {
     }
 
     @Override
-    public void notify(Message f_msg) {
+    public void getNotification(Message f_msg) {
         if(m_executorProcess != null && !m_executorProcess.isTerminated())
             m_executorProcess.execute(new ProcessCmd(this, m_strRootPath, f_msg));
     }

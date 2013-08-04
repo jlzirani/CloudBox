@@ -50,7 +50,7 @@ public class GUIFacade extends AModule {
     }
 
     @Override
-    public void notify(Message f_msg) {
+    public void getNotification(Message f_msg) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

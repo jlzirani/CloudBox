@@ -154,17 +154,17 @@ public class SyncFile implements Runnable {
                             if (kind == ENTRY_DELETE) {
                                 Command cmd = new Command(Command.eType.DELETE);
                                 cmd.setPath(relativePath.toString());
-                                m_facade.notifyObs( cmd );
+                                m_facade.notifyServices( cmd );
                             }
 
                             if (kind == ENTRY_MODIFY) {
-                                m_facade.notifyObs( Tools.constructPropFile( 
+                                m_facade.notifyServices( Tools.constructPropFile( 
                                          m_strRootPath, relativePath.toString() ) );
                             }
 
                             if (kind == ENTRY_CREATE) {
                                 try {
-                                    m_facade.notifyObs( Tools.constructPropFile(m_strRootPath, 
+                                    m_facade.notifyServices( Tools.constructPropFile(m_strRootPath, 
                                             relativePath.toString() ) );
 
                                     if (Files.isDirectory(child, NOFOLLOW_LINKS)) {

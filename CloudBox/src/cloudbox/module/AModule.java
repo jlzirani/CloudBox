@@ -21,35 +21,35 @@ import java.util.ArrayList;
 import java.util.Properties;
 
 public abstract class AModule implements IModule{
-    final protected ArrayList m_vecActors = new ArrayList();
+    final protected ArrayList m_vecServices = new ArrayList();
     protected Properties m_properties;
     
     @Override
-    public void attach(IObserver f_newObs) {
-        synchronized (m_vecActors) {
-            m_vecActors.add(f_newObs);
+    public void attachService(IService f_newObs) {
+        synchronized (m_vecServices) {
+            m_vecServices.add(f_newObs);
         }
     }
 
     @Override
-    public void dettach(IObserver f_newObs) {
-           synchronized (m_vecActors) {
-            m_vecActors.remove(f_newObs);
+    public void dettachService(IService f_newObs) {
+           synchronized (m_vecServices) {
+            m_vecServices.remove(f_newObs);
         }    
     }
 
     @Override
-    public void notifyObs(Message f_msg) {
-        synchronized (m_vecActors) {
-            for (Object o : m_vecActors) {
-                ((IObserver) o).notify(f_msg);
+    public void notifyServices(Message f_msg) {
+        synchronized (m_vecServices) {
+            for (Object o : m_vecServices) {
+                ((IService) o).getNotification(f_msg);
             }
         }
     }
 
     @Override
-    public void notifyObs(Command f_cmd) {
-        notifyObs(new Message(this, f_cmd));
+    public void notifyServices(Command f_cmd) {
+        notifyServices(new Message(this, f_cmd));
     }
     
     @Override
