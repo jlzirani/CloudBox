@@ -24,7 +24,7 @@ import cloudbox.module.Command;
 public class Tools {
     
    static public File getFile(String strRootPath, String strRelativePath){
-       return new File( strRootPath +"\\"+ strRelativePath);
+       return new File( strRootPath + File.separator + strRelativePath);
    }
     
    static public Command constructPropFile( String strRootPath, String strRelativePath ) {

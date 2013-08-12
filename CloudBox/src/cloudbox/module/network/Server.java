@@ -44,6 +44,7 @@ public class Server extends Thread {
             while(true) {
                 Socket client = socket.accept();
                 try {
+                    
                     m_netModule.addClient(new ClientModule(client));
                 } catch (IOException ex) 
                 {   logger.log(Level.SEVERE, null, ex); }

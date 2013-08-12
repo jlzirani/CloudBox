@@ -23,10 +23,13 @@ import java.util.logging.Logger;
 
 
 public class Command {
+    // TODO Modify Command to a dictionnary instead of this
     static final private Logger logger = Logger.getLogger(Command.class.getName());
 
+
+
     static public enum eType { GETINDEX, INDEX, GETFILE, FILE, GETPROPFILE, 
-        PROPFILE, DELETE };
+        PROPFILE, DELETE, LOGIN, ASKLOGIN, LOGINSUCCESSFULL };
     
     static public class cIndex {
         public String m_strName;
@@ -39,14 +42,14 @@ public class Command {
     }
     
     private eType m_Type;
-    private String m_Path = null; // used by all
+    private String m_Path = null; // used by all w/out LOGIN
     private boolean m_isDir = false; // used by PROPFILE
     private long m_length = 0; // used by PROPFILE
     private long m_date = 0; // used by PROPFILE and FILE
     private ArrayList Index = null; // used by INDEX
     private int m_sizeIndex = 4;
     private byte[] m_data = null;
-    
+    private String m_strUser = null, m_strPassword = null; // used by login
     
     public Command( eType f_Type ) {
         m_Type = f_Type;
@@ -96,6 +99,20 @@ public class Command {
     public void setData(byte[] m_data) {
         this.m_data = m_data;
     }
+    
+    public void setUser(String f_user) 
+    {   this.m_strUser = f_user;    }
+    
+    public void setPassword(String f_password)
+    {   this.m_strPassword = f_password; }
+    
+    public String getUser() 
+    {   return this.m_strUser;    }
+    
+    public String getPassword()
+    {   return this.m_strPassword; }
+    
+    
     
     public ArrayList getIndex() {
         return Index;
@@ -202,6 +219,27 @@ public class Command {
         return result;
     }
     
+    
+    private byte[] serializeLogin() {
+        // {LOGIN, USER, PASSWORD}
+
+        byte[] vecUser = m_strUser.getBytes();
+        byte[] vecPassword = m_strPassword.getBytes();
+        byte[] lengthUser = convert.intToBytes(vecUser.length);
+        byte[] lengthPass = convert.intToBytes(vecPassword.length);
+        byte[] result = new byte[vecUser.length+vecPassword.length+16];
+        
+        System.arraycopy(serializeCmd(), 0, result, 0, 4);
+        System.arraycopy(convert.intToBytes(2), 0, result, 4,4);
+        
+        System.arraycopy(lengthUser, 0, result, 8, 4);
+        System.arraycopy(vecUser, 0, result, 12, vecUser.length);
+        System.arraycopy(lengthPass, 0, result, 12+vecUser.length, 4);
+        System.arraycopy(vecPassword, 0, result,16+vecUser.length , vecPassword.length);
+        
+        return result;
+    }
+    
     public byte[] serializable()
     {
         byte[] result = null;
@@ -211,6 +249,9 @@ public class Command {
             case GETFILE :
             case DELETE :
             case GETPROPFILE: result = serializeGet(); break;
+            case LOGIN: result = serializeLogin(); break;
+            case LOGINSUCCESSFULL: // Do nothing, same things as ASKLOGIN
+            case ASKLOGIN: result = serializeCmd(); break;
             case INDEX: result = serializeIndex(); break;
             case PROPFILE: result = serualizablePropFile(); break;
             case FILE: result = serializeFile(); break;
@@ -267,6 +308,20 @@ public class Command {
         System.arraycopy(f_data, index, m_data, 0, (int)m_length);
     }
     
+    private void unserializableLogin(byte[] f_data) {
+        byte[] vecSizeStr = new byte[4];
+        System.arraycopy(f_data,4,vecSizeStr,0,4);
+        int iSizeStr = convert.bytesToInt(vecSizeStr);
+        
+        setUser(convert.bytesToString(f_data, 8,iSizeStr));
+        
+        int currentIndex = iSizeStr + 8;
+        System.arraycopy(f_data,currentIndex,vecSizeStr,0,4);
+        iSizeStr = convert.bytesToInt(vecSizeStr);
+        currentIndex += 4;
+        setPassword(convert.bytesToString(f_data, currentIndex, iSizeStr));
+    }
+ 
     static public Command unserializable( byte[] f_data ) {
         byte[] vecType = new byte[4];
         System.arraycopy(f_data, 0, vecType, 0, 4);
@@ -278,6 +333,9 @@ public class Command {
             case GETFILE :
             case DELETE :
             case GETPROPFILE: cmd.unserializablePath( f_data ); break;
+            case LOGINSUCCESSFULL: // Do nothing, same things as ASKLOGIN
+            case ASKLOGIN: break; // It is already unserializable :)
+            case LOGIN: cmd.unserializableLogin( f_data ); break;
             case INDEX: cmd.unserializeIndex(f_data); break;
             case PROPFILE: cmd.unserualizablePropFile( f_data ); break;
             case FILE: cmd.unserializeFile(f_data); break;
