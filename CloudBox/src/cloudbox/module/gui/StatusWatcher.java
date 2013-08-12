@@ -30,39 +30,33 @@ public class StatusWatcher implements Runnable {
     private FileModule m_fileModule;
     private NetModule m_netModule;
 
-    private MainFrame mainFrame;
+    private MainFrame m_mainFrame;
        
     public void setFileStatus() {
         IModule.Status status = m_fileModule.status();
         switch(status) {
-            case RUNNING:   mainFrame.fileStatusLabel.setText("Running");
-                            mainFrame.fileStartButton.setText("Stop"); 
+            case RUNNING:   m_mainFrame.fileStatusLabel.setText("Running");
                           break;
-            case STOPPED:   mainFrame.fileReloadBtn.setEnabled(true);
-                            mainFrame.fileStatusLabel.setText("Stopped");
-                            mainFrame.fileStartButton.setText("Start"); 
+            case STOPPED:   m_mainFrame.fileStatusLabel.setText("Stopped");
                           break;
-            default: mainFrame.fileStatusLabel.setText("Error"); break;
+            default: m_mainFrame.fileStatusLabel.setText("Error"); break;
         }
-        mainFrame.dirWatcherLabel.setText(m_fileModule.getDirectoryWatcher());
-        mainFrame.fileStartButton.setEnabled(true); 
+        m_mainFrame.dirWatcherLabel.setText(m_fileModule.getDirectoryWatcher());
+//        mainFrame.fileStartButton.setEnabled(true); 
 
     }
     
     public void setNetStatus() {
         IModule.Status status = m_netModule.status();
         switch(status) {
-            case RUNNING: mainFrame.netStatusLabel.setText("Running");
-                          mainFrame.netStartButton.setText("Stop");
+            case RUNNING: m_mainFrame.netStatusLabel.setText("Running");
                           break;
             case STOPPED: 
-                            mainFrame.netStatusLabel.setText("Stopped");
-                            mainFrame.netStartButton.setText("Start");
-                            mainFrame.netStatusLabel.setEnabled(true);
-                          break;
-            default: mainFrame.netStatusLabel.setText("Error"); break;
+                            m_mainFrame.netStatusLabel.setText("Stopped");
+                           break;
+            default: m_mainFrame.netStatusLabel.setText("Error"); break;
         }
-        mainFrame.netStartButton.setEnabled(true);
+ 
         updateNetModule();
     }
         
@@ -73,11 +67,24 @@ public class StatusWatcher implements Runnable {
         setNetStatus();
         if(m_fileModule.status() == Status.STOPPED && m_netModule.status() == 
                 Status.STOPPED)
-            mainFrame.reloadBtn.setEnabled(true);
+        {
+            if(m_mainFrame.mustUpdateServices())
+                m_mainFrame.updateServices();
+            m_mainFrame.allStartButton.setEnabled(true);
+            m_mainFrame.allStartButton.setText("Start");
+        }
+        else {
+            if(!m_mainFrame.allStartButton.isEnabled())
+            {
+                m_mainFrame.allStartButton.setText("Stop");
+                m_mainFrame.allStartButton.setEnabled(true);
+            }
+        }
+
     }
 
     void setMainFrame(MainFrame aThis) {
-        mainFrame = aThis;
+        m_mainFrame = aThis;
     }
 
     void setFileModule(FileModule f_fileModule) {
@@ -87,18 +94,17 @@ public class StatusWatcher implements Runnable {
     void setNetModule(NetModule f_netModule) {
         m_netModule = f_netModule;
     }
-
     
     private void updateNetModule() {
-        mainFrame.modeLabel.setText(m_netModule.getMode());
+        m_mainFrame.modeLabel.setText(m_netModule.getMode());
 
         if("Server".equals(m_netModule.getMode())) {
-            mainFrame.serverLabel.setEnabled(false);
-            mainFrame.serverLabel.setText("localhost"+":"+m_netModule.getPort());
+            m_mainFrame.serverLabel.setEnabled(false);
+            m_mainFrame.serverLabel.setText("localhost"+":"+m_netModule.getPort());
         }
         else {
-            mainFrame.serverLabel.setEnabled(true);
-            mainFrame.serverLabel.setText(m_netModule.getHost()+":"+m_netModule.getPort());
+            m_mainFrame.serverLabel.setEnabled(true);
+            m_mainFrame.serverLabel.setText(m_netModule.getHost()+":"+m_netModule.getPort());
         }
     }
     

@@ -32,10 +32,21 @@ public class UserServerModule extends AModule {
     
     ExecutorService m_executorProcess = null;
     UserValidator m_userValidator = new UserValidator();
+    private IModule m_fileModule;
     
-    public void attachService(IService f_newObs) {
-        super.attachService(f_newObs);
-        f_newObs.getNotification(new Message(this, new Command(eType.ASKLOGIN)));
+    public UserServerModule(IModule f_fileModule) {
+        m_fileModule = f_fileModule;
+    }
+    
+    
+    @Override
+    public void attachService(IService f_newService) {
+        super.attachService(f_newService);
+        f_newService.getNotification(new Message(this, new Command(eType.ASKLOGIN)));
+    }
+    
+    public void setFileModule(IModule f_fileModule) {
+        m_fileModule = f_fileModule;
     }
     
     @Override
@@ -67,8 +78,8 @@ public class UserServerModule extends AModule {
 
     @Override
     public void getNotification(Message f_msg) {
-                if(m_executorProcess != null && !m_executorProcess.isTerminated())
-            m_executorProcess.execute(new UserValidator(this, null, m_strUser, m_strPassword, f_msg));
+        if(m_executorProcess != null && !m_executorProcess.isTerminated())
+            m_executorProcess.execute(new UserValidator(this, m_fileModule, m_strUser, m_strPassword, f_msg));
     }
     
 }

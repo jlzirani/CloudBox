@@ -32,6 +32,7 @@ import javax.swing.JFileChooser;
 public class OptionFrame extends JDialog {
 
     private Properties m_properties;
+    private MainFrame m_mainFrame;
     static private String ms_filePackage = FileModule.class.getPackage().getName();
     static private String ms_netPackage = NetModule.class.getPackage().getName();
     
@@ -43,14 +44,16 @@ public class OptionFrame extends JDialog {
         initComponents();
     }
 
-    public OptionFrame(Properties f_properties) {
+    public OptionFrame(MainFrame f_mainFrame, Properties f_properties) {
         super();
         initComponents();
         this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         setTitle("Option");
         m_properties = f_properties;
         enableComponents(athPanel, enabledCheckBox.isSelected());
+        m_mainFrame = f_mainFrame;
     }
+
     
     public void enableComponents(Container container, boolean bEnable) {
         container.setEnabled(bEnable);
@@ -403,6 +406,7 @@ public class OptionFrame extends JDialog {
     }//GEN-LAST:event_okButtonActionPerformed
 
     private void applyButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_applyButtonActionPerformed
+        
         if(serverMode.isSelected()) {
             m_properties.setProperty(ms_netPackage+".mode", "server"); 
             m_properties.remove(ms_netPackage+".server");
@@ -414,6 +418,7 @@ public class OptionFrame extends JDialog {
         
         m_properties.setProperty(ms_netPackage+".port", portField.getText());
         m_properties.setProperty(FileModule.class.getPackage().getName()+".directory", directoryField.getText());
+        m_mainFrame.updateServices();
     }//GEN-LAST:event_applyButtonActionPerformed
 
     private void enabledCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_enabledCheckBoxActionPerformed

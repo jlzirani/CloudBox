@@ -18,6 +18,8 @@
 package cloudbox.module.file;
 
 import cloudbox.module.AModule;
+import cloudbox.module.IModule;
+import cloudbox.module.IObserver;
 import cloudbox.module.Message;
 import java.io.File;
 import java.io.IOException;
@@ -26,12 +28,11 @@ import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class FileModule extends AModule {
+public class FileModule extends AModule implements IObserver {
 
     static private String ms_strPkgName=FileModule.class.getPackage().getName();
     private SyncFile m_syncFile;
-    
-    private Thread m_threadFile;
+
     ExecutorService m_executorProcess = null;
     
     String m_strRootPath;
@@ -67,28 +68,37 @@ public class FileModule extends AModule {
     @Override
     public void start() {
         try {
-            m_syncFile = new SyncFile(this, m_strRootPath);
-
-            m_threadFile = new Thread(m_syncFile);
-            m_executorProcess = Executors.newFixedThreadPool(25);
-            m_threadFile.start();
+            if(m_syncFile == null)
+            {
+                m_syncFile = new SyncFile(this, m_strRootPath);
+                m_syncFile.start();
+            }
+            if(m_executorProcess == null)
+            {   m_executorProcess = Executors.newFixedThreadPool(25);   }
+            notifyObs();
         } catch (IOException ex) {
-            Logger.getLogger(FileModule.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(FileModule.class.getName()).log(Level.SEVERE, null, ex);
         }
-        notifyObs();
     }
     
     @Override
     public void stop() {
-        m_threadFile.interrupt();
+        if(m_syncFile != null && m_syncFile.isAlive())
+        {
+            m_syncFile.interrupt();
+            try {
+                 m_syncFile.join();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(FileModule.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            m_syncFile = null;
         
-        try {
-             m_threadFile.join();
-        } catch (InterruptedException ex) {
-            Logger.getLogger(FileModule.class.getName()).log(Level.SEVERE, null, ex);
         }
-        m_executorProcess.shutdown();
-        m_threadFile = null;
+
+        if(m_executorProcess != null) {
+            m_executorProcess.shutdown();
+            m_executorProcess = null;
+        }
         
         notifyObs();
     }
@@ -97,13 +107,13 @@ public class FileModule extends AModule {
     public Status status() {
         Status status = Status.ERROR; // by default the status is in error
         
-        if( m_threadFile == null && 
+        if( m_syncFile == null && 
                 (m_executorProcess == null || m_executorProcess.isTerminated()))
         {   status = Status.STOPPED;    }
         else
         {
             if((m_executorProcess != null && !m_executorProcess.isTerminated()) 
-                    || (m_threadFile != null && m_threadFile.isAlive() ))
+                    || (m_syncFile != null && m_syncFile.isAlive() ))
             {   status = Status.RUNNING;    } 
             
         }
@@ -124,6 +134,13 @@ public class FileModule extends AModule {
             Logger.getLogger(FileModule.class.getName()).log(Level.SEVERE, null, ex);
         }
         notifyObs();
+    }
+
+    @Override
+    public void update(IModule f_module) {
+        if(f_module.status() == Status.STOPPED) {
+            dettachService(f_module);
+        }
     }
 
     

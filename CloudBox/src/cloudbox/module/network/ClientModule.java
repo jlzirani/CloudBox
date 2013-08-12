@@ -25,8 +25,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ClientModule extends AModule {
+    final private static Logger logger =Logger.getLogger(ClientModule.class.getName());
     private String m_host;
     private short m_port;
+    NetHandler netHandler;
     private DownStream m_downStream;
     private UpStream m_upStream;
     
@@ -36,7 +38,7 @@ public class ClientModule extends AModule {
     }
 
     public ClientModule(Socket f_client) throws IOException {
-        NetHandler netHandler = new NetHandler(f_client);
+        netHandler = new NetHandler(f_client);
         m_downStream = new DownStream(this, netHandler);
         m_upStream = new UpStream(netHandler);
     }
@@ -51,7 +53,7 @@ public class ClientModule extends AModule {
         try {
             if(m_downStream == null && m_upStream == null) {
                 Socket client = new Socket(m_host, m_port);
-                NetHandler netHandler = new NetHandler(client);
+                netHandler = new NetHandler(client);
                 m_downStream = new DownStream(this, netHandler);
                 m_upStream = new UpStream(netHandler);
             }
@@ -59,32 +61,41 @@ public class ClientModule extends AModule {
             m_downStream.start();
             m_upStream.start();
         } catch (UnknownHostException ex) {
-            Logger.getLogger(ClientModule.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(ClientModule.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
     }
     
     @Override
-    public void stop() {
-        m_downStream.interrupt();
-        m_upStream.interrupt();
+    synchronized public void stop() {
+        if(m_downStream != null && m_upStream != null )
+        {
+            netHandler.close();
+            m_downStream = null;
+            m_upStream = null;
+            Logger.getLogger(ClientModule.class.getName()).log(Level.INFO, "Stopping the client");
+            notifyObs();
+        }
     }
 
     @Override
     public Status status() {
         Status status = Status.ERROR;
-        if( m_downStream != null & m_upStream != null)
+        if( m_downStream != null && m_upStream != null)
             status = Status.RUNNING;
-        if( m_downStream == null & m_upStream == null)
+        if( m_downStream == null && m_upStream == null || 
+                ! ( m_downStream.isAlive() && m_upStream.isAlive()) )
+        {
             status = Status.STOPPED;
+            m_downStream = null;
+            m_upStream = null;
+        }
         return status;
     }
 
     @Override
     public void loadProperties() {
-
-        
     }
 
     

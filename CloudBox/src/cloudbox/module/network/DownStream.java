@@ -20,9 +20,11 @@ package cloudbox.module.network;
 import cloudbox.module.IModule;
 import java.io.IOException;
 import cloudbox.module.Command;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class DownStream extends Thread{
+    final static private Logger logger = Logger.getLogger(DownStream.class.getName());
     private NetHandler m_netHandler;
     private IModule m_facade;
 
@@ -36,13 +38,13 @@ public class DownStream extends Thread{
         try {
             while(true) {
                 Command cmd = m_netHandler.getCommand();
+                logger.log(Level.INFO, "Receiving : {0}", cmd.getType().toString());
                 m_facade.notifyServices( cmd );
             }
         } catch (IOException ex) {
-            ex.printStackTrace();
+            m_facade.stop();
         }
-        
-    }
+   }
 
 
 }

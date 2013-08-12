@@ -19,6 +19,7 @@ package cloudbox.module.network;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,22 +32,41 @@ public class Server extends Thread {
     private static final Logger logger =  Logger.getLogger(Server.class.getName());
     private NetModule m_netModule;
     private int m_iPort;
+    ServerSocket socket;
     
     public Server(NetModule f_netModule, int f_iPort) {
         m_netModule = f_netModule;
         m_iPort = f_iPort;
     }
+    
+    public void stopAccept()
+    {
+        if(socket != null)
+        {
+            try {
+                logger.log(Level.INFO,"Shutting down the listen of the socket");
+                socket.close();
+            } catch (IOException ex) {
+               logger.log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+    
      
     public void run() {
+        boolean bContinue = true;
         try {
-            ServerSocket socket = new ServerSocket(m_iPort);
+            socket = new ServerSocket(m_iPort);
             socket.getReuseAddress();
-            while(true) {
-                Socket client = socket.accept();
+            while(bContinue) {
                 try {
-                    
+                    Socket client = socket.accept();
                     m_netModule.addClient(new ClientModule(client));
-                } catch (IOException ex) 
+                } 
+                catch (SocketException ex) {
+                    bContinue = false;
+                }
+                catch (IOException ex)
                 {   logger.log(Level.SEVERE, null, ex); }
             }
         } catch (IOException ex) 

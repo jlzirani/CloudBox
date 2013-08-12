@@ -38,6 +38,8 @@ public abstract class AModule implements IModule{
             m_vecObservers.remove(f_newObs);
         }   
     }
+    
+    
     @Override
     public void notifyObs() {
         synchronized (m_vecObservers) {
@@ -48,16 +50,16 @@ public abstract class AModule implements IModule{
     }
     
     @Override
-    public void attachService(IService f_newObs) {
+    public void attachService(IService f_newService) {
         synchronized (m_vecServices) {
-            m_vecServices.add(f_newObs);
+            m_vecServices.add(f_newService);
         }
     }
 
     @Override
-    public void dettachService(IService f_newObs) {
+    public void dettachService(IService f_newService) {
         synchronized (m_vecServices) {
-            m_vecServices.remove(f_newObs);
+            m_vecServices.remove(f_newService);
         }    
     }
 

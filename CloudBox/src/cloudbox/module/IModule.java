@@ -28,8 +28,8 @@ public interface IModule extends IService{
     
     /* Services */
     /* attach services */
-    public void attachService(IService f_newObs);
-    public void dettachService(IService f_newObs);
+    public void attachService(IService f_newService);
+    public void dettachService(IService f_newService);
     
     /* Notify all the services */
     public void notifyServices(Message f_msg);

@@ -19,18 +19,13 @@ package cloudbox.module.network;
 
 import cloudbox.module.AModule;
 import cloudbox.module.IModule;
+import cloudbox.module.IObserver;
 import cloudbox.module.Message;
 import java.util.ArrayList;
-import java.util.logging.Logger;
 
-/**
- *
- * @author jlzirani
- */
-
-public class NetModule extends AModule {
+public class NetModule extends AModule implements IObserver {
     private static String ms_strPkgName = NetModule.class.getPackage().getName();
-    private static final Logger logger =  Logger.getLogger(NetModule.class.getName());
+    //private static final Logger logger =  Logger.getLogger(NetModule.class.getName());
     private final ArrayList m_vecClient = new ArrayList();
     private Server m_Server = null;
     private short m_port;
@@ -39,10 +34,6 @@ public class NetModule extends AModule {
 
     @Override
     public void getNotification(Message f_msg) {
-        synchronized(m_vecClient) {
-            for(Object o: m_vecClient)
-            {   ((IModule)o).getNotification(f_msg); }
-        }
     }
 
     private void startServer() {
@@ -63,15 +54,20 @@ public class NetModule extends AModule {
     @Override
     public void stop() {
         synchronized(m_vecClient) {
-            for( Object o: m_vecClient )
-            {   ((IModule)o).stop();    }
-            m_vecClient.clear();
+            while(!m_vecClient.isEmpty())
+            {
+                ((IModule)m_vecClient.get(0)).stop();
+            }
         }
         
         if(m_Server != null) 
-        {   m_Server.stop();  }
+        {   
+            m_Server.stopAccept();
+            m_Server = null;
+            notifyObs();
+        }
         
-        notifyObs();
+
     }
 
     @Override
@@ -119,6 +115,14 @@ public class NetModule extends AModule {
         notifyObs(); // notify observers that we have updated the properties
     }
     
+    public boolean isServer() {
+        return m_bServer;
+    }
+
+    public boolean isClient() {
+        return !m_bServer;
+    }
+    
     public String getMode() {
         if(m_bServer)
             return "Server";
@@ -135,15 +139,31 @@ public class NetModule extends AModule {
 
     void addClient(ClientModule clientModule) {
         
+        clientModule.start();
+        
         synchronized(m_vecServices){
             for( Object o: m_vecServices )
-            {   clientModule.attachService((IModule)o);    }
+            {   
+                clientModule.attachService((IModule)o);    
+                ((IModule)o).attachService(clientModule);
+            }
         }
         
         synchronized(m_vecClient) {
-                m_vecClient.add(clientModule);
+            m_vecClient.add(clientModule);
         }
         
-        clientModule.start();
+        clientModule.attachObs(this);
+    }
+
+    @Override
+    public void update(IModule f_module) {
+        if(f_module.status() == Status.STOPPED) {
+            synchronized(m_vecClient) {   
+                m_vecClient.remove(f_module);   
+            }
+            
+            notifyObs();
+        }        
     }
 }

@@ -33,7 +33,7 @@ import cloudbox.module.Command;
  */
 
 
-public class SyncFile implements Runnable {
+public class SyncFile extends Thread {
     private IModule m_facade;
     String m_strRootPath;
     private boolean trace = false;

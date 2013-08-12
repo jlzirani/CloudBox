@@ -50,14 +50,10 @@ public class UpStream extends Thread {
         return msg;
     }
 
-    protected void wait_message() {
+    protected void wait_message() throws InterruptedException {
         if (m_vecMessage.isEmpty()) {
             synchronized (m_vecMessage) {
-                try {
                     m_vecMessage.wait();
-                } catch (InterruptedException ex) {
-                    logger.log(Level.SEVERE, null, ex);
-                }
             }
         }
     }
@@ -75,11 +71,12 @@ public class UpStream extends Thread {
             while(true) {
                     wait_message();
                     Message msg = getFirstMsg();
-                    logger.log(Level.INFO, "{0}", msg.getCmd().getType().toString());
+                    logger.log(Level.INFO, "Sending {0}", msg.getCmd().getType().toString());
                     m_netHandler.sendCommand(msg.getCmd());
             }
-        } catch (IOException ex) {
-                logger.log(Level.SEVERE, null, ex);
+        } catch (IOException | InterruptedException ex) {
+                m_netHandler.close();
+                
         }
     }
  

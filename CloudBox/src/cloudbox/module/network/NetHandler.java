@@ -22,6 +22,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import cloudbox.module.Command;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class NetHandler {
     private Socket m_socket = null;
@@ -47,6 +49,20 @@ public class NetHandler {
         m_streamInput.readFully(vecCommand,0, vecCommand.length);
         return Command.unserializable(vecCommand);
     }
+    
+    public void close() {
+        if(m_socket != null)
+        {
+            try {       
+                m_socket.close();
+            } catch (IOException ex) {
+                Logger.getLogger(NetHandler.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            m_socket = null;
+        }
+    }
+    
+    
     
     /* @return Return the socket */
     public Socket getSocket() { return m_socket; }

@@ -17,17 +17,18 @@
 package cloudbox.module.gui;
 
 import cloudbox.module.IModule;
+import cloudbox.module.IModule.Status;
 import cloudbox.module.IObserver;
 import cloudbox.module.file.FileModule;
 import cloudbox.module.network.NetModule;
+import cloudbox.module.user.UserClientModule;
+import cloudbox.module.user.UserServerModule;
 import java.awt.Component;
 import java.io.FileOutputStream;
-import static java.util.concurrent.TimeUnit.*;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JRadioButtonMenuItem;
@@ -43,12 +44,15 @@ public class MainFrame extends javax.swing.JFrame implements IObserver {
     private OptionFrame optionFrame;
     private Properties m_properties;
     private FileModule m_fileModule;
+    private IModule m_userModule;
     private NetModule m_netModule;
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private boolean m_setUpdate;
     private final ExecutorService executor = Executors.newFixedThreadPool(1);
     final StatusWatcher statusWatcher = new StatusWatcher();
     static private String ms_strPkgName =MainFrame.class.getPackage().getName();
-  
+    private static final Logger logger = Logger.getLogger(UserClientModule.class.getName());
+    
+   
     /**
      * Creates new form MainFrame
      */
@@ -61,12 +65,12 @@ public class MainFrame extends javax.swing.JFrame implements IObserver {
         m_fileModule = new FileModule();
         m_netModule = new NetModule();
         
-        m_netModule.attachService(m_fileModule);
-        m_fileModule.attachService(m_netModule);
+        //m_netModule.attachService(m_fileModule);
+        //m_fileModule.attachService(m_netModule);
         
         m_fileModule.setProperties(m_properties);
         m_netModule.setProperties(m_properties);
-        optionFrame = new OptionFrame(m_properties);
+        optionFrame = new OptionFrame(this, m_properties);
        
         for (final javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
             final JRadioButtonMenuItem button = new JRadioButtonMenuItem();
@@ -114,14 +118,11 @@ public class MainFrame extends javax.swing.JFrame implements IObserver {
 
         jTabbedPane1 = new javax.swing.JTabbedPane();
         filePanel = new javax.swing.JPanel();
-        reloadBtn = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         statusMsgLabel = new javax.swing.JLabel();
         fileStatusLabel = new javax.swing.JLabel();
         dirWatcherMsgLabel = new javax.swing.JLabel();
         dirWatcherLabel = new javax.swing.JLabel();
-        fileReloadBtn = new javax.swing.JButton();
-        fileStartButton = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         msgModeLabel = new javax.swing.JLabel();
         msgServerLabel = new javax.swing.JLabel();
@@ -129,8 +130,7 @@ public class MainFrame extends javax.swing.JFrame implements IObserver {
         netStatusLabel = new javax.swing.JLabel();
         modeLabel = new javax.swing.JLabel();
         serverLabel = new javax.swing.JLabel();
-        netStartButton = new javax.swing.JButton();
-        netReloadBtn = new javax.swing.JButton();
+        allStartButton = new javax.swing.JToggleButton();
         menuBar = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
         saveCfgFile = new javax.swing.JMenuItem();
@@ -142,13 +142,6 @@ public class MainFrame extends javax.swing.JFrame implements IObserver {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        reloadBtn.setText("reload all properties");
-        reloadBtn.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                reloadBtnActionPerformed(evt);
-            }
-        });
-
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Directory watcher"));
 
         statusMsgLabel.setText("Status :");
@@ -158,20 +151,6 @@ public class MainFrame extends javax.swing.JFrame implements IObserver {
         dirWatcherMsgLabel.setText("Directory watcher :");
 
         dirWatcherLabel.setText("jLabel");
-
-        fileReloadBtn.setText("reload properties");
-        fileReloadBtn.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                fileReloadBtnActionPerformed(evt);
-            }
-        });
-
-        fileStartButton.setText("Start/Stop");
-        fileStartButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                fileStartButtonActionPerformed(evt);
-            }
-        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -183,17 +162,11 @@ public class MainFrame extends javax.swing.JFrame implements IObserver {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(statusMsgLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(fileStatusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 369, Short.MAX_VALUE))
+                        .addComponent(fileStatusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 379, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(dirWatcherMsgLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(0, 0, Short.MAX_VALUE)
-                                .addComponent(fileReloadBtn)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(fileStartButton))
-                            .addComponent(dirWatcherLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
+                        .addComponent(dirWatcherLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -204,11 +177,7 @@ public class MainFrame extends javax.swing.JFrame implements IObserver {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(dirWatcherMsgLabel)
-                    .addComponent(dirWatcherLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(fileReloadBtn)
-                    .addComponent(fileStartButton)))
+                    .addComponent(dirWatcherLabel)))
         );
 
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Network"));
@@ -225,20 +194,6 @@ public class MainFrame extends javax.swing.JFrame implements IObserver {
 
         serverLabel.setText("jLabel");
 
-        netStartButton.setText("Start/Stop");
-        netStartButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                netStartButtonActionPerformed(evt);
-            }
-        });
-
-        netReloadBtn.setText("reload properties");
-        netReloadBtn.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                netReloadBtnActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -253,16 +208,11 @@ public class MainFrame extends javax.swing.JFrame implements IObserver {
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addComponent(msgServerLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(serverLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE))
+                        .addComponent(serverLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addComponent(msgModeLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(modeLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(netReloadBtn)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(netStartButton))))
+                        .addComponent(modeLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -277,22 +227,25 @@ public class MainFrame extends javax.swing.JFrame implements IObserver {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(msgStatusLabel)
-                    .addComponent(netStatusLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(netStartButton)
-                    .addComponent(netReloadBtn)))
+                    .addComponent(netStatusLabel)))
         );
+
+        allStartButton.setText("Start/Stop");
+        allStartButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                allStartButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout filePanelLayout = new javax.swing.GroupLayout(filePanel);
         filePanel.setLayout(filePanelLayout);
         filePanelLayout.setHorizontalGroup(
             filePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, filePanelLayout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(reloadBtn)
+                .addComponent(allStartButton)
                 .addContainerGap())
         );
         filePanelLayout.setVerticalGroup(
@@ -302,8 +255,8 @@ public class MainFrame extends javax.swing.JFrame implements IObserver {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(reloadBtn)
-                .addContainerGap(70, Short.MAX_VALUE))
+                .addComponent(allStartButton)
+                .addContainerGap(128, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("General", filePanel);
@@ -359,7 +312,7 @@ public class MainFrame extends javax.swing.JFrame implements IObserver {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 325, Short.MAX_VALUE)
+            .addComponent(jTabbedPane1, javax.swing.GroupLayout.Alignment.TRAILING)
         );
 
         pack();
@@ -386,42 +339,33 @@ public class MainFrame extends javax.swing.JFrame implements IObserver {
         }
     }//GEN-LAST:event_saveCfgFileActionPerformed
 
-    private void reloadBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reloadBtnActionPerformed
-        m_fileModule.loadProperties();
-        m_netModule.loadProperties();
-    }//GEN-LAST:event_reloadBtnActionPerformed
+    private void allStartButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_allStartButtonActionPerformed
 
-    private void netReloadBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_netReloadBtnActionPerformed
-        m_netModule.loadProperties();
-    }//GEN-LAST:event_netReloadBtnActionPerformed
-
-    private void netStartButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_netStartButtonActionPerformed
-        netStartButton.setEnabled(false);        
-        if("Start".equals(netStartButton.getText())) {
-            reloadBtn.setEnabled(false);
-            netReloadBtn.setEnabled(false);
+        allStartButton.setEnabled(false);
+        if("Start".equals(allStartButton.getText()))
+        {   
+            logger.log(Level.INFO, "Starting modules");
+            m_fileModule.start();
+            if(m_netModule.isServer()) {
+                m_userModule = new UserServerModule(m_fileModule);
+                m_netModule.attachService(m_userModule);
+            }
+            else {
+                m_userModule = new UserClientModule(m_fileModule);
+                m_netModule.attachService(m_userModule);
+            }
+            m_userModule.start();
             m_netModule.start();
         }
-        if("Stop".equals(netStartButton.getText())) {
+        else
+        {
+            logger.log(Level.INFO, "Stoping modules");
+            m_fileModule.stop();
+            m_netModule.dettachService(m_userModule);
+            m_userModule.stop();
             m_netModule.stop();
         }
-    }//GEN-LAST:event_netStartButtonActionPerformed
-
-    private void fileReloadBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileReloadBtnActionPerformed
-        m_fileModule.loadProperties();
-    }//GEN-LAST:event_fileReloadBtnActionPerformed
-
-    private void fileStartButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileStartButtonActionPerformed
-        fileStartButton.setEnabled(false);
-        if("Start".equals(fileStartButton.getText())) {
-            reloadBtn.setEnabled(false);
-            fileReloadBtn.setEnabled(false);
-            m_fileModule.start();
-        }
-        if("Stop".equals(fileStartButton.getText())) {
-            m_fileModule.stop();
-        }
-    }//GEN-LAST:event_fileStartButtonActionPerformed
+    }//GEN-LAST:event_allStartButtonActionPerformed
 
     public final void setLook(String f_strLook) {
         try {
@@ -445,13 +389,12 @@ public class MainFrame extends javax.swing.JFrame implements IObserver {
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    public javax.swing.JToggleButton allStartButton;
     public javax.swing.JLabel dirWatcherLabel;
     private javax.swing.JLabel dirWatcherMsgLabel;
     private javax.swing.JMenuItem exitButton;
     private javax.swing.JMenu fileMenu;
     private javax.swing.JPanel filePanel;
-    public javax.swing.JButton fileReloadBtn;
-    public javax.swing.JButton fileStartButton;
     public javax.swing.JLabel fileStatusLabel;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
@@ -463,11 +406,8 @@ public class MainFrame extends javax.swing.JFrame implements IObserver {
     private javax.swing.JLabel msgModeLabel;
     private javax.swing.JLabel msgServerLabel;
     private javax.swing.JLabel msgStatusLabel;
-    public javax.swing.JButton netReloadBtn;
-    public javax.swing.JButton netStartButton;
     public javax.swing.JLabel netStatusLabel;
     private javax.swing.JMenuItem optionsButton;
-    public javax.swing.JButton reloadBtn;
     private javax.swing.JMenuItem saveCfgFile;
     public javax.swing.JLabel serverLabel;
     private javax.swing.JLabel statusMsgLabel;
@@ -476,6 +416,22 @@ public class MainFrame extends javax.swing.JFrame implements IObserver {
 
     @Override
     public void update(IModule f_module) {
+        logger.log(Level.INFO, "Lanching module");
         executor.execute(statusWatcher);
     }
+
+    void updateServices() {
+        if(m_netModule.status() == Status.RUNNING || m_fileModule.status() == Status.RUNNING) {
+            m_setUpdate = true;
+        }
+        else {
+            m_setUpdate = false;
+            m_netModule.loadProperties();
+            m_fileModule.loadProperties();
+        }
+    }
+    
+    public boolean mustUpdateServices()
+    {   return m_setUpdate; }
+    
 }

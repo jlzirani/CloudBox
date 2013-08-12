@@ -310,12 +310,12 @@ public class Command {
     
     private void unserializableLogin(byte[] f_data) {
         byte[] vecSizeStr = new byte[4];
-        System.arraycopy(f_data,4,vecSizeStr,0,4);
+        System.arraycopy(f_data,8,vecSizeStr,0,4);
         int iSizeStr = convert.bytesToInt(vecSizeStr);
         
-        setUser(convert.bytesToString(f_data, 8,iSizeStr));
+        setUser(convert.bytesToString(f_data, 12,iSizeStr));
         
-        int currentIndex = iSizeStr + 8;
+        int currentIndex = iSizeStr + 12;
         System.arraycopy(f_data,currentIndex,vecSizeStr,0,4);
         iSizeStr = convert.bytesToInt(vecSizeStr);
         currentIndex += 4;

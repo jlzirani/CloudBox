@@ -21,8 +21,11 @@ import cloudbox.module.Command;
 import cloudbox.module.Command.eType;
 import cloudbox.module.IModule;
 import cloudbox.module.Message;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class UserValidator implements Runnable {
+    private static final Logger logger =  Logger.getLogger(UserValidator.class.getName());
     private IModule m_fileModule;
     private String m_strUser, m_strPassword;
     private Message m_msg;
@@ -41,17 +44,33 @@ public class UserValidator implements Runnable {
     @Override
     public void run() {
         Command cmd = m_msg.getCmd();
-        Command cmdAnswer = null;
-        if(cmd.getType() == eType.LOGIN && m_strUser == cmd.getUser() && m_strPassword == cmd.getPassword())
+        
+        if(cmd.getType() == eType.LOGIN && m_strUser.equals(cmd.getUser()) 
+                && m_strPassword.equals(cmd.getPassword()))
         {
+            logger.log(Level.INFO, "Login accepted" );
             IModule src = m_msg.get_from();
+
+            Command cmdAnswer = new Command(eType.LOGINSUCCESSFULL);
+            m_msg.get_from().getNotification(new Message(m_parent, cmdAnswer));
+
             src.dettachService(m_parent);
+            m_parent.dettachService(src);
+            
             src.attachService(m_fileModule); //replacing the service
-            cmdAnswer = new Command(eType.LOGINSUCCESSFULL);
+            m_fileModule.attachService(src);
+
+            cmdAnswer = new Command(eType.GETPROPFILE);
+            cmdAnswer.setPath("/");
+            m_msg.get_from().getNotification(new Message(m_parent, cmdAnswer));
+
         }
         else 
-        {   cmdAnswer = new Command(eType.ASKLOGIN);    }
-        m_msg.get_from().getNotification(new Message(m_parent, cmdAnswer));
+        {   
+            Command cmdAnswer = new Command(eType.ASKLOGIN);
+            m_msg.get_from().getNotification(new Message(m_parent, cmdAnswer));
+        }
+        
     }
     
 }

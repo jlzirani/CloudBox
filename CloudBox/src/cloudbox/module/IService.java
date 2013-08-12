@@ -16,10 +16,7 @@
  */
 package cloudbox.module;
 
-/**
- *
- * @author Zirani J.-L.
- */
+
 public interface IService {
     
     /* getNotification service */
