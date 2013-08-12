@@ -26,6 +26,7 @@ public interface IModule extends IService{
     
     public static enum Status { RUNNING, STOPPED, ERROR };
     
+    /* Services */
     /* attach services */
     public void attachService(IService f_newObs);
     public void dettachService(IService f_newObs);
@@ -33,7 +34,12 @@ public interface IModule extends IService{
     /* Notify all the services */
     public void notifyServices(Message f_msg);
     public void notifyServices(Command f_cmd);
-        
+    
+    /* Observers */
+    public void attachObs(IObserver f_newObs);
+    public void dettachObs(IObserver f_newObs);
+    public void notifyObs();
+    
     /* starting and stopping the module */
     public void start();
     public void stop();

@@ -41,7 +41,7 @@ public class FileModule extends AModule {
     }
     
     public FileModule() throws IOException {
-        m_syncFile = new SyncFile(this);    
+        //m_syncFile = new SyncFile(this);    
     }
     
     public String getDirectoryWatcher() {
@@ -50,7 +50,8 @@ public class FileModule extends AModule {
     
     private void setDirectory() throws IOException {
         m_strRootPath = m_properties.getProperty(ms_strPkgName+".directory");
-        m_syncFile.setDirPath(m_strRootPath);
+        if(m_syncFile != null)
+            m_syncFile.setDirPath(m_strRootPath);
     }
         
     public SyncFile getSyncFile() {
@@ -65,9 +66,16 @@ public class FileModule extends AModule {
 
     @Override
     public void start() {
-        m_threadFile = new Thread(m_syncFile);
-        m_executorProcess = Executors.newFixedThreadPool(25);
-        m_threadFile.start();
+        try {
+            m_syncFile = new SyncFile(this, m_strRootPath);
+
+            m_threadFile = new Thread(m_syncFile);
+            m_executorProcess = Executors.newFixedThreadPool(25);
+            m_threadFile.start();
+        } catch (IOException ex) {
+            Logger.getLogger(FileModule.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        notifyObs();
     }
     
     @Override
@@ -81,6 +89,8 @@ public class FileModule extends AModule {
         }
         m_executorProcess.shutdown();
         m_threadFile = null;
+        
+        notifyObs();
     }
 
     @Override
@@ -113,6 +123,7 @@ public class FileModule extends AModule {
         } catch (IOException ex) {
             Logger.getLogger(FileModule.class.getName()).log(Level.SEVERE, null, ex);
         }
+        notifyObs();
     }
 
     

@@ -46,7 +46,8 @@ public class NetModule extends AModule {
     }
 
     private void startServer() {
-        // @TODO
+        m_Server = new Server(this, m_port);
+        m_Server.start();
     }
     
     @Override
@@ -55,6 +56,8 @@ public class NetModule extends AModule {
         {   startServer();  }
         else
         {   addClient(new ClientModule(m_host, m_port));  }
+        
+        notifyObs();
     }
 
     @Override
@@ -67,13 +70,15 @@ public class NetModule extends AModule {
         
         if(m_Server != null) 
         {   m_Server.stop();  }
+        
+        notifyObs();
     }
 
     @Override
     public Status status() {
         Status status;
         if(m_bServer) {            
-            if(m_Server != null)
+            if(m_Server != null && m_Server.isAlive())
                 status = Status.RUNNING;
             else
                 status = Status.STOPPED;
@@ -110,6 +115,8 @@ public class NetModule extends AModule {
         m_port = Short.parseShort(m_properties.getProperty(ms_strPkgName+".port"));
         
         m_bServer = "server".equals(m_properties.getProperty(ms_strPkgName+".mode"));
+        
+        notifyObs(); // notify observers that we have updated the properties
     }
     
     public String getMode() {
@@ -134,7 +141,7 @@ public class NetModule extends AModule {
         }
         
         synchronized(m_vecClient) {
-                m_vecClient.add(new ClientModule(m_host, m_port));
+                m_vecClient.add(clientModule);
         }
         
         clientModule.start();

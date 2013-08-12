@@ -27,7 +27,7 @@ import java.util.logging.Logger;
  * @author jlzirani
  */
 
-public class Server {
+public class Server extends Thread {
     private static final Logger logger =  Logger.getLogger(Server.class.getName());
     private NetModule m_netModule;
     private int m_iPort;
@@ -52,7 +52,4 @@ public class Server {
         {   logger.log(Level.SEVERE, null, ex); }
     }
 
-    void stop() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 }

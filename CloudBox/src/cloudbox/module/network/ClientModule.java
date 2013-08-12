@@ -49,10 +49,12 @@ public class ClientModule extends AModule {
     @Override
     public void start() {
         try {
-            Socket client = new Socket(m_host, m_port);
-            NetHandler netHandler = new NetHandler(client);
-            m_downStream = new DownStream(this, netHandler);
-            m_upStream = new UpStream(netHandler);
+            if(m_downStream == null && m_upStream == null) {
+                Socket client = new Socket(m_host, m_port);
+                NetHandler netHandler = new NetHandler(client);
+                m_downStream = new DownStream(this, netHandler);
+                m_upStream = new UpStream(netHandler);
+            }
             
             m_downStream.start();
             m_upStream.start();

@@ -22,7 +22,30 @@ import java.util.Properties;
 
 public abstract class AModule implements IModule{
     final protected ArrayList m_vecServices = new ArrayList();
+    final protected ArrayList m_vecObservers = new ArrayList();
     protected Properties m_properties;
+    
+    /* Observers */
+    @Override
+    public void attachObs(IObserver f_newObs) {
+        synchronized (m_vecObservers) {
+            m_vecObservers.add(f_newObs);
+        }
+    }
+    @Override
+    public void dettachObs(IObserver f_newObs){
+        synchronized (m_vecObservers) {
+            m_vecObservers.remove(f_newObs);
+        }   
+    }
+    @Override
+    public void notifyObs() {
+        synchronized (m_vecObservers) {
+            for (Object o : m_vecObservers) {
+                ((IObserver) o).update(this);
+            }
+        }
+    }
     
     @Override
     public void attachService(IService f_newObs) {
@@ -33,7 +56,7 @@ public abstract class AModule implements IModule{
 
     @Override
     public void dettachService(IService f_newObs) {
-           synchronized (m_vecServices) {
+        synchronized (m_vecServices) {
             m_vecServices.remove(f_newObs);
         }    
     }

@@ -75,6 +75,7 @@ public class UpStream extends Thread {
             while(true) {
                     wait_message();
                     Message msg = getFirstMsg();
+                    logger.log(Level.INFO, "{0}", msg.getCmd().getType().toString());
                     m_netHandler.sendCommand(msg.getCmd());
             }
         } catch (IOException ex) {

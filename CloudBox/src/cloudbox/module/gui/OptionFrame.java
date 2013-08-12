@@ -18,6 +18,8 @@ package cloudbox.module.gui;
 
 import cloudbox.module.file.FileModule;
 import cloudbox.module.network.NetModule;
+import java.awt.Component;
+import java.awt.Container;
 import java.io.File;
 import java.util.Properties;
 import javax.swing.JDialog;
@@ -48,6 +50,19 @@ public class OptionFrame extends JDialog {
         setTitle("Option");
         m_properties = f_properties;
         
+    }
+    
+    public void enableComponents(Container container, boolean bEnable) {
+        container.setEnabled(bEnable);
+        Component[] components = container.getComponents();
+        for (Component component : components) {
+            if (component instanceof Container) {
+                enableComponents((Container)component, bEnable);
+            }
+            else {
+                component.setEnabled(bEnable);
+            }
+        }
     }
     
     public void setProperties() {
@@ -104,6 +119,8 @@ public class OptionFrame extends JDialog {
         dirLabel = new javax.swing.JLabel();
         directoryField = new javax.swing.JTextField();
         directoryChooserButton = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        enabledCheckBox = new javax.swing.JCheckBox();
         networkPanel = new javax.swing.JPanel();
         portLabel = new javax.swing.JLabel();
         portField = new javax.swing.JFormattedTextField();
@@ -112,6 +129,13 @@ public class OptionFrame extends JDialog {
         okButton = new javax.swing.JButton();
         cancelButton = new javax.swing.JButton();
         applyButton = new javax.swing.JButton();
+        athPanel = new javax.swing.JPanel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jTextField1 = new javax.swing.JTextField();
+        jPasswordField1 = new javax.swing.JPasswordField();
+        jLabel4 = new javax.swing.JLabel();
+        jPasswordField2 = new javax.swing.JPasswordField();
 
         directoryChooser.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
 
@@ -147,6 +171,15 @@ public class OptionFrame extends JDialog {
             }
         });
 
+        jLabel1.setText("Athentification:");
+
+        enabledCheckBox.setText("Enable");
+        enabledCheckBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                enabledCheckBoxActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout generalPanelLayout = new javax.swing.GroupLayout(generalPanel);
         generalPanel.setLayout(generalPanelLayout);
         generalPanelLayout.setHorizontalGroup(
@@ -154,6 +187,11 @@ public class OptionFrame extends JDialog {
             .addGroup(generalPanelLayout.createSequentialGroup()
                 .addGap(1, 1, 1)
                 .addGroup(generalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(generalPanelLayout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(enabledCheckBox)
+                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(generalPanelLayout.createSequentialGroup()
                         .addComponent(modeLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -179,7 +217,11 @@ public class OptionFrame extends JDialog {
                 .addGroup(generalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(dirLabel)
                     .addComponent(directoryField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(directoryChooserButton)))
+                    .addComponent(directoryChooserButton))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(generalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(enabledCheckBox)))
         );
 
         networkPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Server"));
@@ -239,12 +281,58 @@ public class OptionFrame extends JDialog {
             }
         });
 
+        athPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Authentification"));
+
+        jLabel2.setText("User name:");
+
+        jLabel3.setText("Password:");
+
+        jTextField1.setText("jTextField1");
+
+        jPasswordField1.setText("jPasswordField1");
+
+        jLabel4.setText("Confirm password:");
+
+        jPasswordField2.setText("jPasswordField2");
+
+        javax.swing.GroupLayout athPanelLayout = new javax.swing.GroupLayout(athPanel);
+        athPanel.setLayout(athPanelLayout);
+        athPanelLayout.setHorizontalGroup(
+            athPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(athPanelLayout.createSequentialGroup()
+                .addComponent(jLabel2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jTextField1))
+            .addGroup(athPanelLayout.createSequentialGroup()
+                .addComponent(jLabel3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPasswordField1))
+            .addGroup(athPanelLayout.createSequentialGroup()
+                .addComponent(jLabel4)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPasswordField2))
+        );
+        athPanelLayout.setVerticalGroup(
+            athPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(athPanelLayout.createSequentialGroup()
+                .addGroup(athPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(athPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(jPasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(athPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(jPasswordField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+        );
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(generalPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(networkPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGap(0, 0, Short.MAX_VALUE)
                 .addComponent(cancelButton)
@@ -253,6 +341,8 @@ public class OptionFrame extends JDialog {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(okButton)
                 .addContainerGap())
+            .addComponent(athPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(networkPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -260,7 +350,9 @@ public class OptionFrame extends JDialog {
                 .addComponent(generalPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(networkPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 8, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(athPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(okButton)
                     .addComponent(applyButton)
@@ -324,21 +416,34 @@ public class OptionFrame extends JDialog {
         m_properties.setProperty(FileModule.class.getPackage().getName()+".directory", directoryField.getText());
     }//GEN-LAST:event_applyButtonActionPerformed
 
+    private void enabledCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_enabledCheckBoxActionPerformed
+        enableComponents(athPanel, enabledCheckBox.isSelected());
+    }//GEN-LAST:event_enabledCheckBoxActionPerformed
+
     /**
      * @param args the command line arguments
      */
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton applyButton;
+    private javax.swing.JPanel athPanel;
     private javax.swing.JButton cancelButton;
     private javax.swing.JRadioButton clientMode;
     private javax.swing.JLabel dirLabel;
     private javax.swing.JFileChooser directoryChooser;
     private javax.swing.JButton directoryChooserButton;
     private javax.swing.JTextField directoryField;
+    private javax.swing.JCheckBox enabledCheckBox;
     private javax.swing.JPanel generalPanel;
     private javax.swing.JTextField hostField;
     private javax.swing.JLabel hostLabel;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JPasswordField jPasswordField1;
+    private javax.swing.JPasswordField jPasswordField2;
+    private javax.swing.JTextField jTextField1;
     private javax.swing.ButtonGroup modeGroup;
     private javax.swing.JLabel modeLabel;
     private javax.swing.JPanel networkPanel;
