@@ -21,8 +21,7 @@ import cloudbox.module.IModule.Status;
 import cloudbox.module.IObserver;
 import cloudbox.module.file.FileModule;
 import cloudbox.module.network.NetModule;
-import cloudbox.module.user.UserClientModule;
-import cloudbox.module.user.UserServerModule;
+import cloudbox.module.user.UserModule;
 import java.awt.Component;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -41,16 +40,18 @@ import javax.swing.UnsupportedLookAndFeelException;
  * @author Zirani J.-L.
  */
 public class MainFrame extends javax.swing.JFrame implements IObserver {
+    static private String ms_strPkgName =MainFrame.class.getPackage().getName();
+    private static final Logger logger = Logger.getLogger(MainFrame.class.getName());
+    
     private OptionFrame optionFrame;
     private Properties m_properties;
     private FileModule m_fileModule;
-    private IModule m_userModule;
+    private UserModule m_userModule;
     private NetModule m_netModule;
     private boolean m_setUpdate;
     private final ExecutorService executor = Executors.newFixedThreadPool(1);
     final StatusWatcher statusWatcher = new StatusWatcher();
-    static private String ms_strPkgName =MainFrame.class.getPackage().getName();
-    private static final Logger logger = Logger.getLogger(UserClientModule.class.getName());
+   
     
    
     /**
@@ -65,9 +66,13 @@ public class MainFrame extends javax.swing.JFrame implements IObserver {
         m_fileModule = new FileModule();
         m_netModule = new NetModule();
         
-        //m_netModule.attachService(m_fileModule);
-        //m_fileModule.attachService(m_netModule);
+        m_userModule = new UserModule();
+        m_userModule.setFileModule(m_fileModule);
+        m_userModule.setNetModule(m_netModule);
         
+        m_netModule.attachService(m_userModule);
+        
+        m_userModule.setProperties(m_properties);
         m_fileModule.setProperties(m_properties);
         m_netModule.setProperties(m_properties);
         optionFrame = new OptionFrame(this, m_properties);
@@ -335,7 +340,7 @@ public class MainFrame extends javax.swing.JFrame implements IObserver {
         try {
             m_properties.store(new FileOutputStream("cloudbox.cfg"), "");
         } catch (IOException ex) {
-            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_saveCfgFileActionPerformed
 
@@ -346,14 +351,6 @@ public class MainFrame extends javax.swing.JFrame implements IObserver {
         {   
             logger.log(Level.INFO, "Starting modules");
             m_fileModule.start();
-            if(m_netModule.isServer()) {
-                m_userModule = new UserServerModule(m_fileModule);
-                m_netModule.attachService(m_userModule);
-            }
-            else {
-                m_userModule = new UserClientModule(m_fileModule);
-                m_netModule.attachService(m_userModule);
-            }
             m_userModule.start();
             m_netModule.start();
         }
@@ -361,7 +358,6 @@ public class MainFrame extends javax.swing.JFrame implements IObserver {
         {
             logger.log(Level.INFO, "Stoping modules");
             m_fileModule.stop();
-            m_netModule.dettachService(m_userModule);
             m_userModule.stop();
             m_netModule.stop();
         }
@@ -416,7 +412,7 @@ public class MainFrame extends javax.swing.JFrame implements IObserver {
 
     @Override
     public void update(IModule f_module) {
-        logger.log(Level.INFO, "Lanching module");
+        logger.log(Level.INFO, "Update module");
         executor.execute(statusWatcher);
     }
 

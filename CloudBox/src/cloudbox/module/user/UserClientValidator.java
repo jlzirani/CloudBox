@@ -17,74 +17,54 @@
 
 package cloudbox.module.user;
 
-import cloudbox.module.AModule;
 import cloudbox.module.Command;
 import cloudbox.module.Command.eType;
+import static cloudbox.module.Command.eType.ASKLOGIN;
+import static cloudbox.module.Command.eType.LOGINSUCCESSFULL;
 import cloudbox.module.IModule;
 import cloudbox.module.IObserver;
 import cloudbox.module.Message;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
-public class UserClientModule extends AModule {
-    private static final Logger logger =  Logger.getLogger(UserClientModule.class.getName());
-    String m_strUser = "User", m_strPassword = "Password";
-    private IModule m_fileModule;
-    //ExecutorService m_executorProcess = null;
-
-    public void setFileModule(IModule f_fileModule) {
-        m_fileModule = f_fileModule;
-    }
-        
-    public UserClientModule(IModule f_fileModule) {
-        m_fileModule = f_fileModule;
+public class UserClientValidator extends UserValidator {
+    private static final Logger logger =  Logger.getLogger(UserClientValidator.class.getName());
+ 
+    public UserClientValidator(IModule f_parent, IModule f_fileModule, String f_strUser, String f_password, Message f_msg) {
+        super(f_parent, f_fileModule, f_strUser, f_password, f_msg);
     }
     
+    
     @Override
-    public void start() 
-    {   /* Do nothing */    }
-
-    @Override
-    public void stop() 
-    {   /* DO nothing */    }
-
-    @Override
-    public Status status() {
-        return Status.RUNNING; // Always running
-    }
-
-    @Override
-    public void loadProperties() 
-    {   /* DO nothing */    }
-
-    @Override
-    public void getNotification(Message f_msg) {
-        Command cmd = f_msg.getCmd();
+    public void run() {
+        
+        Command cmd = m_msg.getCmd();
         switch(cmd.getType())
         {
-            case ASKLOGIN: sendLogin(f_msg); break;
-            case LOGINSUCCESSFULL: loginSuccessFull(f_msg); break;
+            case ASKLOGIN: sendLogin(m_msg); break;
+            case LOGINSUCCESSFULL: loginSuccessFull(m_msg); break;
             default: logger.log(Level.WARNING, "Type {0} not recognized", cmd.getType());
         }
-    }
-
+        
+    }    
+    
     private void sendLogin(Message f_msg) {
         Command cmd = new Command(eType.LOGIN);
         cmd.setUser(m_strUser);
         cmd.setPassword(m_strPassword);
         
-        Message msg = new Message(this, cmd);
+        Message msg = new Message(m_parent, cmd);
         f_msg.get_from().getNotification(msg);
     }
 
     private void loginSuccessFull(Message f_msg) {
         IModule src = f_msg.get_from();
-        src.dettachService(this);
-        this.dettachService(src);
+        src.dettachService(m_parent);
         src.attachService(m_fileModule); //replacing the service
+        
+        m_parent.dettachService(src);
         src.attachObs((IObserver) m_fileModule); //Dirty cast
         m_fileModule.attachService(src);
     }
-
+    
 }

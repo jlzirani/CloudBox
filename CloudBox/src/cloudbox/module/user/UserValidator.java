@@ -17,60 +17,21 @@
 
 package cloudbox.module.user;
 
-import cloudbox.module.Command;
-import cloudbox.module.Command.eType;
 import cloudbox.module.IModule;
 import cloudbox.module.Message;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-public class UserValidator implements Runnable {
-    private static final Logger logger =  Logger.getLogger(UserValidator.class.getName());
-    private IModule m_fileModule;
-    private String m_strUser, m_strPassword;
-    private Message m_msg;
-    private IModule m_parent;
+abstract public class UserValidator implements Runnable {
+    protected IModule m_fileModule;
+    protected String m_strUser, m_strPassword;
+    protected Message m_msg;
+    protected IModule m_parent;
     
-    public UserValidator() {} // cstr with no paramater
     public UserValidator(IModule f_parent, IModule f_fileModule, String f_strUser, String f_password, Message f_msg) {
         m_fileModule = f_fileModule;
         m_parent = f_parent;
         m_strUser = f_strUser;
         m_strPassword = f_password;
         m_msg = f_msg;
-    }
-    
-    
-    @Override
-    public void run() {
-        Command cmd = m_msg.getCmd();
-        
-        if(cmd.getType() == eType.LOGIN && m_strUser.equals(cmd.getUser()) 
-                && m_strPassword.equals(cmd.getPassword()))
-        {
-            logger.log(Level.INFO, "Login accepted" );
-            IModule src = m_msg.get_from();
-
-            Command cmdAnswer = new Command(eType.LOGINSUCCESSFULL);
-            m_msg.get_from().getNotification(new Message(m_parent, cmdAnswer));
-
-            src.dettachService(m_parent);
-            m_parent.dettachService(src);
-            
-            src.attachService(m_fileModule); //replacing the service
-            m_fileModule.attachService(src);
-
-            cmdAnswer = new Command(eType.GETPROPFILE);
-            cmdAnswer.setPath("/");
-            m_msg.get_from().getNotification(new Message(m_parent, cmdAnswer));
-
-        }
-        else 
-        {   
-            Command cmdAnswer = new Command(eType.ASKLOGIN);
-            m_msg.get_from().getNotification(new Message(m_parent, cmdAnswer));
-        }
-        
     }
     
 }
