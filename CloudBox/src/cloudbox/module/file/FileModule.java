@@ -18,7 +18,6 @@
 package cloudbox.module.file;
 
 import cloudbox.module.AModule;
-import cloudbox.module.IObserver;
 import cloudbox.module.Message;
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +26,7 @@ import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class FileModule extends AModule implements IObserver {
+public class FileModule extends AModule  {
 
     static private String ms_strPkgName=FileModule.class.getPackage().getName();
     private SyncFile m_syncFile;

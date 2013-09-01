@@ -22,7 +22,6 @@ import cloudbox.module.Command.eType;
 import static cloudbox.module.Command.eType.ASKLOGIN;
 import static cloudbox.module.Command.eType.LOGINSUCCESSFULL;
 import cloudbox.module.AModule;
-import cloudbox.module.IObserver;
 import cloudbox.module.Message;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -63,7 +62,7 @@ public class UserClientValidator extends UserValidator {
         src.attachService(m_fileModule); //replacing the service
         
         m_parent.dettachService(src);
-        src.attachObs((IObserver) m_fileModule); //Dirty cast
+        src.attachObs(m_fileModule); //Dirty cast
         m_fileModule.attachService(src);
     }
     

@@ -29,12 +29,12 @@ public abstract class AModule {
     protected Properties m_properties;
     
     /* Observers */
-        public void attachObs(IObserver f_newObs) {
+        public void attachObs(AModule f_newObs) {
         synchronized (m_vecObservers) {
             m_vecObservers.add(f_newObs);
         }
     }
-        public void dettachObs(IObserver f_newObs){
+        public void dettachObs(AModule f_newObs){
         synchronized (m_vecObservers) {
             m_vecObservers.remove(f_newObs);
         }   
@@ -44,7 +44,7 @@ public abstract class AModule {
         public void notifyObs() {
         synchronized (m_vecObservers) {
             for (Object o : m_vecObservers) {
-                ((IObserver) o).update(this);
+                ((AModule) o).update(this);
             }
         }
     }
@@ -88,5 +88,11 @@ public abstract class AModule {
   
     
     abstract public void getNotification(Message f_msg);
+    
+    // Update an observer
+    public void update( AModule f_subject )
+    {
+        // Do nothing
+    }
     
 }

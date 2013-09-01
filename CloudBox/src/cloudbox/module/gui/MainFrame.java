@@ -18,7 +18,6 @@ package cloudbox.module.gui;
 
 import cloudbox.module.AModule;
 import cloudbox.module.AModule.Status;
-import cloudbox.module.IObserver;
 import cloudbox.module.file.FileModule;
 import cloudbox.module.network.NetModule;
 import cloudbox.module.user.UserModule;
@@ -39,7 +38,7 @@ import javax.swing.UnsupportedLookAndFeelException;
  *
  * @author Zirani J.-L.
  */
-public class MainFrame extends javax.swing.JFrame implements IObserver {
+public class MainFrame extends javax.swing.JFrame implements Runnable {
     static private String ms_strPkgName =MainFrame.class.getPackage().getName();
     private static final Logger logger = Logger.getLogger(MainFrame.class.getName());
     
@@ -57,7 +56,7 @@ public class MainFrame extends javax.swing.JFrame implements IObserver {
     /**
      * Creates new form MainFrame
      */
-    public MainFrame(Properties f_prop) throws IOException {
+    public MainFrame(Properties f_prop, GUIFacade f_gui) throws IOException {
         initComponents();
         setTitle("CloudBox");
         
@@ -97,8 +96,8 @@ public class MainFrame extends javax.swing.JFrame implements IObserver {
         }
         setStatusLabel();
 
-        m_fileModule.attachObs(this);
-        m_netModule.attachObs(this);
+        m_fileModule.attachObs(f_gui);
+        m_netModule.attachObs(f_gui);
     
     }
 
@@ -410,7 +409,6 @@ public class MainFrame extends javax.swing.JFrame implements IObserver {
     private javax.swing.JMenu toolsMenu;
     // End of variables declaration//GEN-END:variables
 
-    @Override
     public void update(AModule f_module) {
         logger.log(Level.INFO, "Update module");
         executor.execute(statusWatcher);
@@ -430,5 +428,10 @@ public class MainFrame extends javax.swing.JFrame implements IObserver {
     
     public boolean mustUpdateServices()
     {   return m_setUpdate; }
+
+    @Override
+    public void run() {
+        setVisible(true);
+    }
     
 }

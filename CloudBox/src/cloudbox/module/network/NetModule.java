@@ -18,13 +18,11 @@
 package cloudbox.module.network;
 
 import cloudbox.module.AModule;
-import cloudbox.module.IObserver;
 import cloudbox.module.Message;
 import java.util.ArrayList;
 
-public class NetModule extends AModule implements IObserver {
+public class NetModule extends AModule {
     private static String ms_strPkgName = NetModule.class.getPackage().getName();
-    //private static final Logger logger =  Logger.getLogger(NetModule.class.getName());
     private final ArrayList m_vecClient = new ArrayList();
     private Server m_Server = null;
     private short m_port;

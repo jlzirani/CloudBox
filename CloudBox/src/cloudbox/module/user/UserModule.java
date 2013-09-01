@@ -19,14 +19,13 @@ package cloudbox.module.user;
 
 import cloudbox.module.AModule;
 import cloudbox.module.Command;
-import cloudbox.module.IObserver;
 import cloudbox.module.Message;
 import cloudbox.module.network.NetModule;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 
-public class UserModule extends AModule implements IObserver{
+public class UserModule extends AModule {
     private static String ms_strPkgName = UserModule.class.getPackage().getName();
     ExecutorService m_executorProcess = null;
     private boolean m_bServer;

@@ -30,17 +30,12 @@ public class GUIFacade extends AModule {
     
     @Override
     public void start() {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    m_mainFrame = new MainFrame(m_properties);
-                    m_mainFrame.setVisible(true);
-                } catch (IOException ex) {
-                    Logger.getLogger(GUIFacade.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        });
+        try {
+            m_mainFrame = new MainFrame(m_properties, this);
+            java.awt.EventQueue.invokeLater(  m_mainFrame );
+        } catch (IOException ex) {
+            Logger.getLogger(GUIFacade.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
     }
 
@@ -70,5 +65,12 @@ public class GUIFacade extends AModule {
         }
 
     }
+    
+    @Override
+    public void update( AModule f_subject )
+    {
+        m_mainFrame.update(f_subject);
+    }
+    
 
 }
