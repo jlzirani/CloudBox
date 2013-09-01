@@ -17,7 +17,7 @@
 
 package cloudbox.module.network;
 
-import cloudbox.module.IModule;
+import cloudbox.module.AModule;
 import java.io.IOException;
 import cloudbox.module.Command;
 import java.util.logging.Level;
@@ -26,9 +26,9 @@ import java.util.logging.Logger;
 public class DownStream extends Thread{
     final static private Logger logger = Logger.getLogger(DownStream.class.getName());
     private NetHandler m_netHandler;
-    private IModule m_facade;
+    private AModule m_facade;
 
-    public DownStream(IModule f_facade, NetHandler f_netHandler){
+    public DownStream(AModule f_facade, NetHandler f_netHandler){
         m_netHandler = f_netHandler;
         m_facade = f_facade;
     }

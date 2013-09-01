@@ -17,7 +17,7 @@
 
 package cloudbox.module.file;
 
-import cloudbox.module.IModule;
+import cloudbox.module.AModule;
 import static java.nio.file.StandardWatchEventKinds.*;
 import static java.nio.file.LinkOption.*;
 import java.nio.file.attribute.*;
@@ -34,7 +34,7 @@ import cloudbox.module.Command;
 
 
 public class SyncFile extends Thread {
-    private IModule m_facade;
+    private AModule m_facade;
     String m_strRootPath;
     private boolean trace = false;
     final static private Logger logger = Logger.getLogger(SyncFile.class.getName());
@@ -44,14 +44,14 @@ public class SyncFile extends Thread {
     private final WatchService watcher;
         
        
-    public SyncFile(IModule f_facade, String f_strRootPath) throws IOException{
+    public SyncFile(AModule f_facade, String f_strRootPath) throws IOException{
        watcher = FileSystems.getDefault().newWatchService();
        m_facade = f_facade;       
        m_strRootPath = f_strRootPath;
        registerAll(Paths.get(f_strRootPath));
    }
     
-    public SyncFile(IModule f_facade) throws IOException{
+    public SyncFile(AModule f_facade) throws IOException{
        watcher = FileSystems.getDefault().newWatchService();
        m_facade = f_facade;       
     }

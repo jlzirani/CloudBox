@@ -443,11 +443,12 @@ public class OptionFrame extends JDialog {
                 error = true;
             }
             else {   
+                m_properties.setProperty(UserModule.class.getPackage().getName()+".enabled", "true");
                 m_properties.setProperty(UserModule.class.getPackage().getName()+".user", userName.getText());
                 if( pass1.length != 0 )
                 {
                     m_properties.setProperty(UserModule.class.getPackage().getName()+".password", String.valueOf(pass1));
-                    m_properties.getProperty(UserModule.class.getPackage().getName()+".enabled", "true");
+                   
                 }
                 m_mainFrame.updateServices();   
             }

@@ -18,7 +18,6 @@
 package cloudbox.module.network;
 
 import cloudbox.module.AModule;
-import cloudbox.module.IModule;
 import cloudbox.module.IObserver;
 import cloudbox.module.Message;
 import java.util.ArrayList;
@@ -56,7 +55,7 @@ public class NetModule extends AModule implements IObserver {
         synchronized(m_vecClient) {
             while(!m_vecClient.isEmpty())
             {
-                ((IModule)m_vecClient.get(0)).stop();
+                ((AModule)m_vecClient.get(0)).stop();
             }
         }
         
@@ -84,7 +83,7 @@ public class NetModule extends AModule implements IObserver {
                 if(m_vecClient.isEmpty())
                     status = Status.STOPPED;
                 else
-                    status = ((IModule)m_vecClient.get(0)).status();
+                    status = ((AModule)m_vecClient.get(0)).status();
             }
         }
         return status;
@@ -144,8 +143,8 @@ public class NetModule extends AModule implements IObserver {
         synchronized(m_vecServices){
             for( Object o: m_vecServices )
             {   
-                clientModule.attachService((IModule)o);    
-                ((IModule)o).attachService(clientModule);
+                clientModule.attachService((AModule)o);    
+                ((AModule)o).attachService(clientModule);
             }
         }
         
@@ -157,7 +156,7 @@ public class NetModule extends AModule implements IObserver {
     }
 
     @Override
-    public void update(IModule f_module) {
+    public void update(AModule f_module) {
         if(f_module.status() == Status.STOPPED) {
             synchronized(m_vecClient) {   
                 m_vecClient.remove(f_module);   

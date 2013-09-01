@@ -20,28 +20,28 @@ package cloudbox.module;
 import java.util.ArrayList;
 import java.util.Properties;
 
-public abstract class AModule implements IModule{
+public abstract class AModule {
+    
+    public static enum Status { RUNNING, STOPPED, ERROR };
+    
     final protected ArrayList m_vecServices = new ArrayList();
     final protected ArrayList m_vecObservers = new ArrayList();
     protected Properties m_properties;
     
     /* Observers */
-    @Override
-    public void attachObs(IObserver f_newObs) {
+        public void attachObs(IObserver f_newObs) {
         synchronized (m_vecObservers) {
             m_vecObservers.add(f_newObs);
         }
     }
-    @Override
-    public void dettachObs(IObserver f_newObs){
+        public void dettachObs(IObserver f_newObs){
         synchronized (m_vecObservers) {
             m_vecObservers.remove(f_newObs);
         }   
     }
     
     
-    @Override
-    public void notifyObs() {
+        public void notifyObs() {
         synchronized (m_vecObservers) {
             for (Object o : m_vecObservers) {
                 ((IObserver) o).update(this);
@@ -49,38 +49,44 @@ public abstract class AModule implements IModule{
         }
     }
     
-    @Override
-    public void attachService(IService f_newService) {
+        public void attachService(AModule f_newService) {
         synchronized (m_vecServices) {
             m_vecServices.add(f_newService);
         }
     }
 
-    @Override
-    public void dettachService(IService f_newService) {
+        public void dettachService(AModule f_newService) {
         synchronized (m_vecServices) {
             m_vecServices.remove(f_newService);
         }    
     }
 
-    @Override
-    public void notifyServices(Message f_msg) {
+        public void notifyServices(Message f_msg) {
         synchronized (m_vecServices) {
             for (Object o : m_vecServices) {
-                ((IService) o).getNotification(f_msg);
+                ((AModule) o).getNotification(f_msg);
             }
         }
     }
 
-    @Override
     public void notifyServices(Command f_cmd) {
         notifyServices(new Message(this, f_cmd));
     }
     
-    @Override
-    public void setProperties(Properties f_properties) {
+        public void setProperties(Properties f_properties) {
         m_properties = f_properties;
         loadProperties();
     }
+          
+    /* starting and stopping the module */
+    abstract public void start();
+    abstract public void stop();
+    abstract public Status status();
+
+    /* properties */
+    abstract public void loadProperties();
+  
+    
+    abstract public void getNotification(Message f_msg);
     
 }

@@ -16,8 +16,8 @@
  */
 package cloudbox.module.gui;
 
-import cloudbox.module.IModule;
-import cloudbox.module.IModule.Status;
+import cloudbox.module.AModule;
+import cloudbox.module.AModule.Status;
 import cloudbox.module.IObserver;
 import cloudbox.module.file.FileModule;
 import cloudbox.module.network.NetModule;
@@ -411,7 +411,7 @@ public class MainFrame extends javax.swing.JFrame implements IObserver {
     // End of variables declaration//GEN-END:variables
 
     @Override
-    public void update(IModule f_module) {
+    public void update(AModule f_module) {
         logger.log(Level.INFO, "Update module");
         executor.execute(statusWatcher);
     }

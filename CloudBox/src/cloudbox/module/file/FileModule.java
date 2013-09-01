@@ -18,7 +18,6 @@
 package cloudbox.module.file;
 
 import cloudbox.module.AModule;
-import cloudbox.module.IModule;
 import cloudbox.module.IObserver;
 import cloudbox.module.Message;
 import java.io.File;
@@ -137,7 +136,7 @@ public class FileModule extends AModule implements IObserver {
     }
 
     @Override
-    public void update(IModule f_module) {
+    public void update(AModule f_module) {
         if(f_module.status() == Status.STOPPED) {
             dettachService(f_module);
         }

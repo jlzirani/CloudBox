@@ -19,9 +19,7 @@ package cloudbox.module.user;
 
 import cloudbox.module.AModule;
 import cloudbox.module.Command;
-import cloudbox.module.IModule;
 import cloudbox.module.IObserver;
-import cloudbox.module.IService;
 import cloudbox.module.Message;
 import cloudbox.module.network.NetModule;
 import java.util.concurrent.ExecutorService;
@@ -35,10 +33,10 @@ public class UserModule extends AModule implements IObserver{
     private boolean m_bEnabled;
     private String m_strUser;
     private String m_strPassword;
-    private IModule m_fileModule;
+    private AModule m_fileModule;
     private NetModule m_netModule;     
 
-    public void setFileModule(IModule f_module)
+    public void setFileModule(AModule f_module)
     {   m_fileModule = f_module;    }
     
     public void setNetModule(NetModule f_module)
@@ -51,7 +49,7 @@ public class UserModule extends AModule implements IObserver{
     }
     
     @Override
-    public void attachService(IService f_newService) {
+    public void attachService(AModule f_newService) {
         super.attachService(f_newService);
         if(m_bEnabled && m_bServer && status() == Status.RUNNING)
             f_newService.getNotification(new Message(this, new Command(Command.eType.ASKLOGIN)));
@@ -120,7 +118,7 @@ public class UserModule extends AModule implements IObserver{
     }
 
     @Override
-    public void update(IModule f_module) {
+    public void update(AModule f_module) {
         m_bServer = m_netModule.isServer();
     }
     

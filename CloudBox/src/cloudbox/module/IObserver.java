@@ -19,5 +19,5 @@ package cloudbox.module;
 
 
 public interface IObserver {
-    public void update( IModule f_module );
+    public void update( AModule f_module );
 }

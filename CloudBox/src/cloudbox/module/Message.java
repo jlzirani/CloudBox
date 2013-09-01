@@ -20,12 +20,12 @@ package cloudbox.module;
 
 public class Message {
     //private AModule m_from;
-    private IModule m_from = null;
+    private AModule m_from = null;
     private Command m_cmd = null;
     
     public Message() {}
     
-    public Message(IModule f_from, Command f_cmd){
+    public Message(AModule f_from, Command f_cmd){
         m_from = f_from;
         m_cmd = f_cmd;
     }
@@ -33,7 +33,7 @@ public class Message {
     public void setCmd(Command f_cmd) { m_cmd = f_cmd; }
     public Command getCmd() { return m_cmd; }
     
-    public void set_from(IModule f_from) { m_from = f_from; }
-    public IModule get_from() { return m_from; }
+    public void set_from(AModule f_from) { m_from = f_from; }
+    public AModule get_from() { return m_from; }
     
 }

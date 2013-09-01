@@ -17,16 +17,16 @@
 
 package cloudbox.module.user;
 
-import cloudbox.module.IModule;
+import cloudbox.module.AModule;
 import cloudbox.module.Message;
 
 abstract public class UserValidator implements Runnable {
-    protected IModule m_fileModule;
+    protected AModule m_fileModule;
     protected String m_strUser, m_strPassword;
     protected Message m_msg;
-    protected IModule m_parent;
+    protected AModule m_parent;
     
-    public UserValidator(IModule f_parent, IModule f_fileModule, String f_strUser, String f_password, Message f_msg) {
+    public UserValidator(AModule f_parent, AModule f_fileModule, String f_strUser, String f_password, Message f_msg) {
         m_fileModule = f_fileModule;
         m_parent = f_parent;
         m_strUser = f_strUser;

@@ -17,10 +17,8 @@
 
 package cloudbox.module.gui;
 
-import cloudbox.module.IModule;
-import cloudbox.module.IModule.Status;
-import static cloudbox.module.IModule.Status.RUNNING;
-import static cloudbox.module.IModule.Status.STOPPED;
+import cloudbox.module.AModule;
+import cloudbox.module.AModule.Status;
 import cloudbox.module.file.FileModule;
 import cloudbox.module.network.NetModule;
 
@@ -33,7 +31,7 @@ public class StatusWatcher implements Runnable {
     private MainFrame m_mainFrame;
        
     public void setFileStatus() {
-        IModule.Status status = m_fileModule.status();
+        AModule.Status status = m_fileModule.status();
         switch(status) {
             case RUNNING:   m_mainFrame.fileStatusLabel.setText("Running");
                           break;
@@ -47,7 +45,7 @@ public class StatusWatcher implements Runnable {
     }
     
     public void setNetStatus() {
-        IModule.Status status = m_netModule.status();
+        AModule.Status status = m_netModule.status();
         switch(status) {
             case RUNNING: m_mainFrame.netStatusLabel.setText("Running");
                           break;

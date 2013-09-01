@@ -21,7 +21,7 @@ import cloudbox.module.Command;
 import cloudbox.module.Command.eType;
 import static cloudbox.module.Command.eType.ASKLOGIN;
 import static cloudbox.module.Command.eType.LOGINSUCCESSFULL;
-import cloudbox.module.IModule;
+import cloudbox.module.AModule;
 import cloudbox.module.IObserver;
 import cloudbox.module.Message;
 import java.util.logging.Level;
@@ -30,7 +30,7 @@ import java.util.logging.Logger;
 public class UserClientValidator extends UserValidator {
     private static final Logger logger =  Logger.getLogger(UserClientValidator.class.getName());
  
-    public UserClientValidator(IModule f_parent, IModule f_fileModule, String f_strUser, String f_password, Message f_msg) {
+    public UserClientValidator(AModule f_parent, AModule f_fileModule, String f_strUser, String f_password, Message f_msg) {
         super(f_parent, f_fileModule, f_strUser, f_password, f_msg);
     }
     
@@ -58,7 +58,7 @@ public class UserClientValidator extends UserValidator {
     }
 
     private void loginSuccessFull(Message f_msg) {
-        IModule src = f_msg.get_from();
+        AModule src = f_msg.get_from();
         src.dettachService(m_parent);
         src.attachService(m_fileModule); //replacing the service
         

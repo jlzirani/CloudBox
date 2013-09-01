@@ -19,7 +19,7 @@ package cloudbox.module.user;
 
 import cloudbox.module.Command;
 import cloudbox.module.Command.eType;
-import cloudbox.module.IModule;
+import cloudbox.module.AModule;
 import cloudbox.module.Message;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,7 +27,7 @@ import java.util.logging.Logger;
 public class UserServerValidator extends UserValidator {
     private static final Logger logger =  Logger.getLogger(UserServerValidator.class.getName());
 
-    public UserServerValidator(IModule f_parent, IModule f_fileModule, String f_strUser, String f_password, Message f_msg) {
+    public UserServerValidator(AModule f_parent, AModule f_fileModule, String f_strUser, String f_password, Message f_msg) {
         super(f_parent, f_fileModule, f_strUser, f_password, f_msg);
     }
     
@@ -39,7 +39,7 @@ public class UserServerValidator extends UserValidator {
                 && m_strPassword.equals(cmd.getPassword()))
         {
             logger.log(Level.INFO, "Login accepted" );
-            IModule src = m_msg.get_from();
+            AModule src = m_msg.get_from();
 
             Command cmdAnswer = new Command(eType.LOGINSUCCESSFULL);
             m_msg.get_from().getNotification(new Message(m_parent, cmdAnswer));
