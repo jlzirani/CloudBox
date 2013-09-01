@@ -17,8 +17,11 @@
 
 package cloudbox.module.network;
 
+import cloudbox.module.Command;
 import cloudbox.module.Message;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.Socket;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.logging.Level;
@@ -28,10 +31,12 @@ import java.util.logging.Logger;
 public class UpStream extends Thread {
     final static private Logger logger = Logger.getLogger(UpStream.class.getName());
     final private Queue m_vecMessage = new LinkedList();
-    private NetHandler m_netHandler;
+    private DataOutputStream m_streamOutput;
+    private Socket m_socket;
     
-    public UpStream(NetHandler f_netHandler){
-        m_netHandler = f_netHandler;
+    public UpStream(Socket f_socket) throws IOException{
+        m_socket = f_socket;
+        m_streamOutput = new DataOutputStream(f_socket.getOutputStream());
     }
     
     protected Message getFirstMsg() {
@@ -65,6 +70,13 @@ public class UpStream extends Thread {
         }
     }
     
+    public void sendCommand(Command f_cmd) throws IOException{
+        byte[] vecCommand = Serialize.serializable(f_cmd);
+        
+        m_streamOutput.writeInt(vecCommand.length);
+        m_streamOutput.write(vecCommand);
+    }
+    
     @Override
     public void run() {
         try {
@@ -72,10 +84,15 @@ public class UpStream extends Thread {
                     wait_message();
                     Message msg = getFirstMsg();
                     logger.log(Level.INFO, "Sending {0}", msg.getCmd().getType().toString());
-                    m_netHandler.sendCommand(msg.getCmd());
+                    sendCommand(msg.getCmd());
             }
         } catch (IOException | InterruptedException ex) {
-                m_netHandler.close();
+            try {       
+                m_socket.close();
+            } catch (IOException ex1) {
+                Logger.getLogger(UpStream.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            m_socket = null;
                 
         }
     }

@@ -18,16 +18,6 @@
 package cloudbox.module.network;
 
 import cloudbox.module.Command;
-import static cloudbox.module.Command.eType.ASKLOGIN;
-import static cloudbox.module.Command.eType.DELETE;
-import static cloudbox.module.Command.eType.FILE;
-import static cloudbox.module.Command.eType.GETFILE;
-import static cloudbox.module.Command.eType.GETINDEX;
-import static cloudbox.module.Command.eType.GETPROPFILE;
-import static cloudbox.module.Command.eType.INDEX;
-import static cloudbox.module.Command.eType.LOGIN;
-import static cloudbox.module.Command.eType.LOGINSUCCESSFULL;
-import static cloudbox.module.Command.eType.PROPFILE;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.logging.Level;

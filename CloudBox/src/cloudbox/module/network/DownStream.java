@@ -20,24 +20,32 @@ package cloudbox.module.network;
 import cloudbox.module.AModule;
 import java.io.IOException;
 import cloudbox.module.Command;
+import java.io.DataInputStream;
+import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class DownStream extends Thread{
     final static private Logger logger = Logger.getLogger(DownStream.class.getName());
-    private NetHandler m_netHandler;
     private AModule m_facade;
-
-    public DownStream(AModule f_facade, NetHandler f_netHandler){
-        m_netHandler = f_netHandler;
+    private DataInputStream m_streamInput;
+    
+    public DownStream(AModule f_facade, Socket f_socket) throws IOException{
+        m_streamInput = new DataInputStream(f_socket.getInputStream());
         m_facade = f_facade;
     }
     
+    public Command getCommand() throws IOException{
+        byte[] vecCommand = new byte[m_streamInput.readInt()];
+        m_streamInput.readFully(vecCommand,0, vecCommand.length);
+        return Serialize.unserializable( vecCommand );
+    }
+        
     @Override
     public void run() {
         try {
             while(true) {
-                Command cmd = m_netHandler.getCommand();
+                Command cmd = getCommand();
                 logger.log(Level.INFO, "Receiving : {0}", cmd.getType().toString());
                 m_facade.notifyServices( cmd );
             }

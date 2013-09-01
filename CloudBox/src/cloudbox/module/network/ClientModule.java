@@ -28,7 +28,8 @@ public class ClientModule extends AModule {
     final private static Logger logger =Logger.getLogger(ClientModule.class.getName());
     private String m_host;
     private short m_port;
-    NetHandler netHandler;
+    
+    private Socket m_socket;
     private DownStream m_downStream;
     private UpStream m_upStream;
     
@@ -38,9 +39,8 @@ public class ClientModule extends AModule {
     }
 
     public ClientModule(Socket f_client) throws IOException {
-        netHandler = new NetHandler(f_client);
-        m_downStream = new DownStream(this, netHandler);
-        m_upStream = new UpStream(netHandler);
+        m_downStream = new DownStream(this, f_client);
+        m_upStream = new UpStream(f_client);
     }
     
     public ClientModule( String f_host, short f_port) {
@@ -53,9 +53,8 @@ public class ClientModule extends AModule {
         try {
             if(m_downStream == null && m_upStream == null) {
                 Socket client = new Socket(m_host, m_port);
-                netHandler = new NetHandler(client);
-                m_downStream = new DownStream(this, netHandler);
-                m_upStream = new UpStream(netHandler);
+                m_downStream = new DownStream(this, client);
+                m_upStream = new UpStream(client);
             }
             
             m_downStream.start();
@@ -71,7 +70,11 @@ public class ClientModule extends AModule {
     synchronized public void stop() {
         if(m_downStream != null && m_upStream != null )
         {
-            netHandler.close();
+            try {
+                m_socket.close();
+            } catch (IOException ex) {
+                Logger.getLogger(ClientModule.class.getName()).log(Level.SEVERE, null, ex);
+            }
             m_downStream = null;
             m_upStream = null;
             Logger.getLogger(ClientModule.class.getName()).log(Level.INFO, "Stopping the client");
