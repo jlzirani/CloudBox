@@ -18,13 +18,16 @@ package cloudbox.module.gui;
 
 import cloudbox.module.file.FileModule;
 import cloudbox.module.network.NetModule;
+import cloudbox.module.user.UserModule;
 import java.awt.Component;
 import java.awt.Container;
 import java.io.File;
+import java.util.Arrays;
 import java.util.Properties;
 import javax.swing.JDialog;
 import javax.swing.BorderFactory;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 /**
  *
  * @author Zirani J.-L.
@@ -35,6 +38,7 @@ public class OptionFrame extends JDialog {
     private MainFrame m_mainFrame;
     static private String ms_filePackage = FileModule.class.getPackage().getName();
     static private String ms_netPackage = NetModule.class.getPackage().getName();
+    private boolean error = false;
     
     /**
      * Creates new form OptionFrame
@@ -50,7 +54,7 @@ public class OptionFrame extends JDialog {
         this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         setTitle("Option");
         m_properties = f_properties;
-        enableComponents(athPanel, enabledCheckBox.isSelected());
+        enableComponents(athPanel, authButton.isSelected());
         m_mainFrame = f_mainFrame;
     }
 
@@ -78,6 +82,18 @@ public class OptionFrame extends JDialog {
                 ms_filePackage + ".directory", 
                 System.getProperty("user.home")+File.separator+"CloudBox"+
                 File.separator));
+        
+        
+        if("true".equals(m_properties.getProperty(UserModule.class.getPackage().getName()+".enabled")))
+        {
+            authButton.setSelected(true);
+            enableComponents(athPanel, authButton.isSelected());   
+            
+            userName.setText(m_properties.getProperty(UserModule.class.getPackage().getName()+".user")); 
+            password1.setText(m_properties.getProperty(UserModule.class.getPackage().getName()+".password")); 
+            password2.setText(m_properties.getProperty(UserModule.class.getPackage().getName()+".password"));
+        }
+        
     }
     
     private void setClientProp() {
@@ -123,7 +139,7 @@ public class OptionFrame extends JDialog {
         directoryField = new javax.swing.JTextField();
         directoryChooserButton = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
-        enabledCheckBox = new javax.swing.JCheckBox();
+        authButton = new javax.swing.JCheckBox();
         networkPanel = new javax.swing.JPanel();
         portLabel = new javax.swing.JLabel();
         portField = new javax.swing.JFormattedTextField();
@@ -135,10 +151,10 @@ public class OptionFrame extends JDialog {
         athPanel = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jPasswordField1 = new javax.swing.JPasswordField();
+        userName = new javax.swing.JTextField();
+        password1 = new javax.swing.JPasswordField();
         jLabel4 = new javax.swing.JLabel();
-        jPasswordField2 = new javax.swing.JPasswordField();
+        password2 = new javax.swing.JPasswordField();
 
         directoryChooser.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
 
@@ -176,10 +192,10 @@ public class OptionFrame extends JDialog {
 
         jLabel1.setText("Athentification:");
 
-        enabledCheckBox.setText("Enable");
-        enabledCheckBox.addActionListener(new java.awt.event.ActionListener() {
+        authButton.setText("Enable");
+        authButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                enabledCheckBoxActionPerformed(evt);
+                authButtonActionPerformed(evt);
             }
         });
 
@@ -193,7 +209,7 @@ public class OptionFrame extends JDialog {
                     .addGroup(generalPanelLayout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(enabledCheckBox)
+                        .addComponent(authButton)
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(generalPanelLayout.createSequentialGroup()
                         .addComponent(modeLabel)
@@ -224,7 +240,7 @@ public class OptionFrame extends JDialog {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(generalPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(enabledCheckBox)))
+                    .addComponent(authButton)))
         );
 
         networkPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Server"));
@@ -290,13 +306,9 @@ public class OptionFrame extends JDialog {
 
         jLabel3.setText("Password:");
 
-        jTextField1.setText("jTextField1");
-
-        jPasswordField1.setText("jPasswordField1");
+        userName.setText("user");
 
         jLabel4.setText("Confirm password:");
-
-        jPasswordField2.setText("jPasswordField2");
 
         javax.swing.GroupLayout athPanelLayout = new javax.swing.GroupLayout(athPanel);
         athPanel.setLayout(athPanelLayout);
@@ -305,30 +317,30 @@ public class OptionFrame extends JDialog {
             .addGroup(athPanelLayout.createSequentialGroup()
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTextField1))
+                .addComponent(userName))
             .addGroup(athPanelLayout.createSequentialGroup()
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPasswordField1))
+                .addComponent(password1))
             .addGroup(athPanelLayout.createSequentialGroup()
                 .addComponent(jLabel4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPasswordField2))
+                .addComponent(password2))
         );
         athPanelLayout.setVerticalGroup(
             athPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(athPanelLayout.createSequentialGroup()
                 .addGroup(athPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(userName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(athPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
-                    .addComponent(jPasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(password1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(athPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
-                    .addComponent(jPasswordField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(password2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -401,12 +413,12 @@ public class OptionFrame extends JDialog {
 
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
         applyButtonActionPerformed(evt);
-                   
-        this.dispose();
+        if(!error)
+            this.dispose();
     }//GEN-LAST:event_okButtonActionPerformed
 
     private void applyButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_applyButtonActionPerformed
-        
+        error = false;
         if(serverMode.isSelected()) {
             m_properties.setProperty(ms_netPackage+".mode", "server"); 
             m_properties.remove(ms_netPackage+".server");
@@ -418,12 +430,40 @@ public class OptionFrame extends JDialog {
         
         m_properties.setProperty(ms_netPackage+".port", portField.getText());
         m_properties.setProperty(FileModule.class.getPackage().getName()+".directory", directoryField.getText());
-        m_mainFrame.updateServices();
+        
+        if(authButton.isSelected())
+        {
+            char[] pass1 = password1.getPassword(), pass2 = password2.getPassword();
+            if( !Arrays.equals(pass1, pass2) )
+            {
+                JOptionPane.showMessageDialog(this,
+                "The password and the verify password are different !",
+                "Password",
+                JOptionPane.ERROR_MESSAGE);
+                error = true;
+            }
+            else {   
+                m_properties.setProperty(UserModule.class.getPackage().getName()+".user", userName.getText());
+                if( pass1.length != 0 )
+                {
+                    m_properties.setProperty(UserModule.class.getPackage().getName()+".password", String.valueOf(pass1));
+                    m_properties.getProperty(UserModule.class.getPackage().getName()+".enabled", "true");
+                }
+                m_mainFrame.updateServices();   
+            }
+            Arrays.fill(pass1,'0');
+            Arrays.fill(pass2,'0');
+        }
+        else {
+            m_properties.getProperty(UserModule.class.getPackage().getName()+".enabled", "false");
+            m_mainFrame.updateServices();
+        }
+            
     }//GEN-LAST:event_applyButtonActionPerformed
 
-    private void enabledCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_enabledCheckBoxActionPerformed
-        enableComponents(athPanel, enabledCheckBox.isSelected());
-    }//GEN-LAST:event_enabledCheckBoxActionPerformed
+    private void authButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_authButtonActionPerformed
+        enableComponents(athPanel, authButton.isSelected());
+    }//GEN-LAST:event_authButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -432,13 +472,13 @@ public class OptionFrame extends JDialog {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton applyButton;
     private javax.swing.JPanel athPanel;
+    private javax.swing.JCheckBox authButton;
     private javax.swing.JButton cancelButton;
     private javax.swing.JRadioButton clientMode;
     private javax.swing.JLabel dirLabel;
     private javax.swing.JFileChooser directoryChooser;
     private javax.swing.JButton directoryChooserButton;
     private javax.swing.JTextField directoryField;
-    private javax.swing.JCheckBox enabledCheckBox;
     private javax.swing.JPanel generalPanel;
     private javax.swing.JTextField hostField;
     private javax.swing.JLabel hostLabel;
@@ -446,16 +486,16 @@ public class OptionFrame extends JDialog {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JPasswordField jPasswordField1;
-    private javax.swing.JPasswordField jPasswordField2;
-    private javax.swing.JTextField jTextField1;
     private javax.swing.ButtonGroup modeGroup;
     private javax.swing.JLabel modeLabel;
     private javax.swing.JPanel networkPanel;
     private javax.swing.JButton okButton;
+    private javax.swing.JPasswordField password1;
+    private javax.swing.JPasswordField password2;
     private javax.swing.JFormattedTextField portField;
     private javax.swing.JLabel portLabel;
     private javax.swing.JRadioButton serverMode;
+    private javax.swing.JTextField userName;
     // End of variables declaration//GEN-END:variables
 
 
