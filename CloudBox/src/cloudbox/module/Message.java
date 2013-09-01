@@ -19,7 +19,6 @@ package cloudbox.module;
 
 
 public class Message {
-    //private AModule m_from;
     private AModule m_from = null;
     private Command m_cmd = null;
     
