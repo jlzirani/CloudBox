@@ -18,15 +18,10 @@
 package cloudbox.module;
 
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 public class Command {
     // TODO Modify Command to a dictionnary instead of this
-    static final private Logger logger = Logger.getLogger(Command.class.getName());
-
-
 
     static public enum eType { GETINDEX, INDEX, GETFILE, FILE, GETPROPFILE, 
         PROPFILE, DELETE, LOGIN, ASKLOGIN, LOGINSUCCESSFULL };
@@ -112,10 +107,12 @@ public class Command {
     public String getPassword()
     {   return this.m_strPassword; }
     
-    
-    
     public ArrayList getIndex() {
         return Index;
+    }
+    
+    public int sizeOfIndex() {
+        return m_sizeIndex;
     }
     
     public void AddIndexFile( cIndex f_cIndex) {
@@ -137,215 +134,5 @@ public class Command {
         }
         return searchedItem;
     }
-    
-    
-    private byte[] serializePath(){
-        byte[] str = m_Path.getBytes();
-        byte[] length = convert.intToBytes(str.length);
-        byte[] result = new byte[str.length+4];
-        
-        System.arraycopy(length, 0, result, 0, 4);
-        System.arraycopy(str, 0, result, 4, str.length);
-        return result;
-    }
-    private byte[] serializeCmd(){
-        return convert.intToBytes(m_Type.ordinal());
-    }
-    
-    private byte[] serializeGet()
-    {
-        byte[] vecPath = serializePath();
-        byte[] result = new byte[vecPath.length+4];
-        
-        System.arraycopy(serializeCmd(), 0, result, 0, 4);
-        System.arraycopy(vecPath, 0, result, 4, vecPath.length);
-        
-        return result;
-    }
-    
-    private byte[] serializeIndex()
-    {
-        byte[] vecPath = serializePath();
-        byte[] result = new byte[vecPath.length+4+m_sizeIndex];
-        
-        System.arraycopy(serializeCmd(), 0, result, 0, 4);
-        System.arraycopy(vecPath, 0, result, 4, vecPath.length);
-        int index = vecPath.length + 4;
-        System.arraycopy(convert.intToBytes(Index.size()), 0, result, index, 4);
-        index += 4;
-        
-        for(Object it:  Index) {
-            cIndex iit = (cIndex) it;
-            byte[] str = iit.m_strName.getBytes();
-            System.arraycopy(convert.intToBytes(str.length),0,result, index, 4);
-            index += 4;
-            System.arraycopy(str, 0, result, index, str.length);
-            index += str.length;
-            System.arraycopy(convert.longToBytes(iit.m_date),0,result,index, 8);
-            index += 8;
-        }
-               
-        return result;
-    }
-    
-    private byte[] serualizablePropFile( ) {
-        // {PROPFILE, PATH, ISDIR, DATE, LENGTH}
-        byte[] vecPath = serializePath();
-        byte[] result = new byte[vecPath.length+4+17];
-        
-        System.arraycopy(serializeCmd(), 0, result, 0, 4);
-        System.arraycopy(vecPath, 0, result, 4, vecPath.length);
-        int index = vecPath.length + 4;
-        result[index++] = (m_isDir) ? (byte)1 : (byte) 0;
-        System.arraycopy(convert.longToBytes(m_date),0,result,index,8);
-        index += 8 ;
-        System.arraycopy(convert.longToBytes(m_length),0,result,index,8);
-    
-        return result;
-    }
-    
-    private byte[] serializeFile() {
-        // {FILE, PATH, DATE, LENGTH, FILECONTENT}
-        byte[] vecPath = serializePath();
-        byte[] result = new byte[vecPath.length+4+16+m_data.length];
-        System.arraycopy(serializeCmd(), 0, result, 0, 4);
-        System.arraycopy(vecPath, 0, result, 4, vecPath.length);        
-        int index = vecPath.length + 4;
-        System.arraycopy(convert.longToBytes(m_date),0,result,index,8);
-        index += 8 ;
-        System.arraycopy(convert.longToBytes(m_data.length),0,result,index,8);
-        index += 8;
-        System.arraycopy(m_data,0,result,index,m_data.length);
-        return result;
-    }
-    
-    
-    private byte[] serializeLogin() {
-        // {LOGIN, USER, PASSWORD}
-
-        byte[] vecUser = m_strUser.getBytes();
-        byte[] vecPassword = m_strPassword.getBytes();
-        byte[] lengthUser = convert.intToBytes(vecUser.length);
-        byte[] lengthPass = convert.intToBytes(vecPassword.length);
-        byte[] result = new byte[vecUser.length+vecPassword.length+16];
-        
-        System.arraycopy(serializeCmd(), 0, result, 0, 4);
-        System.arraycopy(convert.intToBytes(2), 0, result, 4,4);
-        
-        System.arraycopy(lengthUser, 0, result, 8, 4);
-        System.arraycopy(vecUser, 0, result, 12, vecUser.length);
-        System.arraycopy(lengthPass, 0, result, 12+vecUser.length, 4);
-        System.arraycopy(vecPassword, 0, result,16+vecUser.length , vecPassword.length);
-        
-        return result;
-    }
-    
-    public byte[] serializable()
-    {
-        byte[] result = null;
-        
-        switch(m_Type){
-            case GETINDEX:
-            case GETFILE :
-            case DELETE :
-            case GETPROPFILE: result = serializeGet(); break;
-            case LOGIN: result = serializeLogin(); break;
-            case LOGINSUCCESSFULL: // Do nothing, same things as ASKLOGIN
-            case ASKLOGIN: result = serializeCmd(); break;
-            case INDEX: result = serializeIndex(); break;
-            case PROPFILE: result = serualizablePropFile(); break;
-            case FILE: result = serializeFile(); break;
-            default: logger.log(Level.WARNING, "Type {0} non recognized", m_Type.toString());
-        }
-        
-        return result;       
-    }
-    
-    private int unserializablePath( byte[] f_data ) {
-        byte[] vecSizePath = new byte[4];
-        System.arraycopy(f_data,4,vecSizePath,0,4);
-        int iSizePath = convert.bytesToInt(vecSizePath);
-        byte[] vecPath = new byte[iSizePath];
-        System.arraycopy(f_data,8,vecPath,0,iSizePath);
-        setPath(new String(vecPath));
-        return iSizePath+8;
-    }
-    
-    private void unserializeIndex( byte[] f_data ){
-        int index = unserializablePath(f_data);
-        int nbrIndex = convert.bytesToInt(f_data, index);
-        index += 4;
-        
-        for(int i =0; i < nbrIndex; ++i){
-            int strSize = convert.bytesToInt(f_data, index);
-            index += 4;
-            String str = convert.bytesToString(f_data, index, strSize);
-            index += strSize;
-                      
-            AddIndexFile(str, convert.bytesToLong(f_data, index));
-            index += 8;
-        }
-    }
-    
-    private void unserualizablePropFile( byte[] f_data ) {
-        // {PROPFILE, PATH, ISDIR, DATE, LENGTH}
-        int index = unserializablePath(f_data);
-        m_isDir = f_data[index++] == 1;
-        m_date = convert.bytesToLong(f_data, index);
-        index +=8;
-        m_length = convert.bytesToLong(f_data, index);
-    }
-
-    private void unserializeFile(byte[] f_data) {
-        // {FILE, PATH, DATE, LENGTH, FILECONTENT, DELETE}
-        int index = unserializablePath(f_data);
-        m_date = convert.bytesToLong(f_data, index);
-        index += 8;
-        m_length = convert.bytesToLong(f_data, index);
-        index +=8;
-        
-        m_data = new byte[(int)m_length];
-        System.arraycopy(f_data, index, m_data, 0, (int)m_length);
-    }
-    
-    private void unserializableLogin(byte[] f_data) {
-        byte[] vecSizeStr = new byte[4];
-        System.arraycopy(f_data,8,vecSizeStr,0,4);
-        int iSizeStr = convert.bytesToInt(vecSizeStr);
-        
-        setUser(convert.bytesToString(f_data, 12,iSizeStr));
-        
-        int currentIndex = iSizeStr + 12;
-        System.arraycopy(f_data,currentIndex,vecSizeStr,0,4);
-        iSizeStr = convert.bytesToInt(vecSizeStr);
-        currentIndex += 4;
-        setPassword(convert.bytesToString(f_data, currentIndex, iSizeStr));
-    }
- 
-    static public Command unserializable( byte[] f_data ) {
-        byte[] vecType = new byte[4];
-        System.arraycopy(f_data, 0, vecType, 0, 4);
-        eType type = eType.values()[convert.bytesToInt(vecType)];
-        Command cmd = new Command(type);
-                
-       switch(type){
-            case GETINDEX:
-            case GETFILE :
-            case DELETE :
-            case GETPROPFILE: cmd.unserializablePath( f_data ); break;
-            case LOGINSUCCESSFULL: // Do nothing, same things as ASKLOGIN
-            case ASKLOGIN: break; // It is already unserializable :)
-            case LOGIN: cmd.unserializableLogin( f_data ); break;
-            case INDEX: cmd.unserializeIndex(f_data); break;
-            case PROPFILE: cmd.unserualizablePropFile( f_data ); break;
-            case FILE: cmd.unserializeFile(f_data); break;
-            default: logger.log(Level.WARNING, "Type {0} non recognized", type.toString());
-        }
-              
-        
-        return cmd;
-    }
-    
-    
     
 }

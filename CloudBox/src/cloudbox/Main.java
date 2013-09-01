@@ -29,39 +29,6 @@ import java.util.logging.Logger;
 public class Main {
     final static private Logger logger = Logger.getLogger(Main.class.getName());
     
-    /*private static void server() {
-        try {
-            FileFacade file = new FileFacade(System.getProperty("user.home")+"/CloudBox/server");
-            file.start();
-            logger.log(Level.INFO, "Starting server");
-            Server server = new Server(file);
-            server.run();
-        } catch (IOException ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    } 
-    
-    private static void client() {
-        try {
-            FileFacade file = new FileFacade(System.getProperty("user.home")+"/CloudBox/client");
-            file.start();
-            logger.log(Level.INFO, "Starting client");
-
-            NetFacade client = new NetFacade( "localhost", (short)1337);
-
-            client.attachService(file);
-            file.attachService(client);
-
-            client.start();
-
-            client.join();
-        }  catch (IOException ex) {
-            logger.log(Level.SEVERE,null, ex);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }*/
-    
     /**
      * @param args the command line arguments
      */
@@ -93,10 +60,7 @@ public class Main {
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-
-        
-        
+       
         
     }
 }

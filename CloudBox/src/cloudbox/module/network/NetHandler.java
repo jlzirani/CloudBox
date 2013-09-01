@@ -38,7 +38,7 @@ public class NetHandler {
     }
     
     public void sendCommand(Command f_cmd) throws IOException{
-        byte[] vecCommand = f_cmd.serializable();
+        byte[] vecCommand = Serialize.serializable(f_cmd);
         
         m_streamOutput.writeInt(vecCommand.length);
         m_streamOutput.write(vecCommand);
@@ -47,7 +47,7 @@ public class NetHandler {
     public Command getCommand() throws IOException{
         byte[] vecCommand = new byte[m_streamInput.readInt()];
         m_streamInput.readFully(vecCommand,0, vecCommand.length);
-        return Command.unserializable(vecCommand);
+        return Serialize.unserializable( vecCommand );
     }
     
     public void close() {
