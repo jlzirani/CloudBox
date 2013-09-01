@@ -24,7 +24,6 @@ import cloudbox.module.network.NetModule;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-
 public class UserModule extends AModule {
     private static String ms_strPkgName = UserModule.class.getPackage().getName();
     ExecutorService m_executorProcess = null;
@@ -87,14 +86,16 @@ public class UserModule extends AModule {
             m_properties.put(ms_strPkgName+".enabled", "true");
         }
         
-        m_bEnabled = "true".equals(m_properties.getProperty(ms_strPkgName+".enabled"));
+        m_bEnabled = "true".equals(m_properties.getProperty(ms_strPkgName+".enabled", "false"));
         if(m_bEnabled){
-            if(!m_properties.contains(ms_strPkgName+".user")) {
+            if(!m_properties.containsKey(ms_strPkgName+".user")) {
                 m_properties.put(ms_strPkgName+".user", "user");
             }
-            if(!m_properties.contains(ms_strPkgName+".password")) {
+                        
+            if(!m_properties.containsKey(ms_strPkgName+".password")) {
                 m_properties.put(ms_strPkgName+".password", "");
             }
+            
             m_strUser = m_properties.getProperty(ms_strPkgName+".user");
             m_strPassword = m_properties.getProperty(ms_strPkgName+".password");
         }
