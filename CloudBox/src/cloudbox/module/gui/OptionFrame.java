@@ -34,10 +34,12 @@ import javax.swing.JOptionPane;
  */
 public class OptionFrame extends JDialog {
 
-    private Properties m_properties;
-    private MainFrame m_mainFrame;
     static private String ms_filePackage = FileModule.class.getPackage().getName();
     static private String ms_netPackage = NetModule.class.getPackage().getName();
+    static private String ms_userPackage = UserModule.class.getPackage().getName();
+    
+    private Properties m_properties;
+    private MainFrame m_mainFrame;
     private boolean error = false;
     
     /**
@@ -54,7 +56,6 @@ public class OptionFrame extends JDialog {
         this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         setTitle("Option");
         m_properties = f_properties;
-        enableComponents(athPanel, authButton.isSelected());
         m_mainFrame = f_mainFrame;
     }
 
@@ -84,14 +85,14 @@ public class OptionFrame extends JDialog {
                 File.separator));
         
         
-        if("true".equals(m_properties.getProperty(UserModule.class.getPackage().getName()+".enabled")))
+        if("true".equals(m_properties.getProperty(ms_userPackage+".enabled")))
         {
             authButton.setSelected(true);
             enableComponents(athPanel, authButton.isSelected());   
             
-            userName.setText(m_properties.getProperty(UserModule.class.getPackage().getName()+".user")); 
-            password1.setText(m_properties.getProperty(UserModule.class.getPackage().getName()+".password")); 
-            password2.setText(m_properties.getProperty(UserModule.class.getPackage().getName()+".password"));
+            userName.setText(m_properties.getProperty(ms_userPackage+".user")); 
+            password1.setText(m_properties.getProperty(ms_userPackage+".password")); 
+            password2.setText(m_properties.getProperty(ms_userPackage+".password"));
         }
         
     }
@@ -429,7 +430,7 @@ public class OptionFrame extends JDialog {
         }
         
         m_properties.setProperty(ms_netPackage+".port", portField.getText());
-        m_properties.setProperty(FileModule.class.getPackage().getName()+".directory", directoryField.getText());
+        m_properties.setProperty(ms_filePackage+".directory", directoryField.getText());
         
         if(authButton.isSelected())
         {
@@ -443,12 +444,11 @@ public class OptionFrame extends JDialog {
                 error = true;
             }
             else {   
-                m_properties.setProperty(UserModule.class.getPackage().getName()+".enabled", "true");
-                m_properties.setProperty(UserModule.class.getPackage().getName()+".user", userName.getText());
+                m_properties.setProperty(ms_userPackage+".enabled", "true");
+                m_properties.setProperty(ms_userPackage+".user", userName.getText());
                 if( pass1.length != 0 )
                 {
-                    m_properties.setProperty(UserModule.class.getPackage().getName()+".password", String.valueOf(pass1));
-                   
+                    m_properties.setProperty(ms_userPackage+".password", String.valueOf(pass1));
                 }
                 m_mainFrame.updateServices();   
             }
