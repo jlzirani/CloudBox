@@ -422,6 +422,7 @@ public class MainFrame extends javax.swing.JFrame implements IObserver {
         }
         else {
             m_setUpdate = false;
+            m_userModule.loadProperties();
             m_netModule.loadProperties();
             m_fileModule.loadProperties();
         }
