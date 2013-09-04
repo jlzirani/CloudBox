@@ -56,7 +56,7 @@ public class MainFrame extends javax.swing.JFrame implements Runnable {
     /**
      * Creates new form MainFrame
      */
-    public MainFrame(Properties f_prop, GUIFacade f_gui) throws IOException {
+    public MainFrame(Properties f_prop, GUIModule f_gui) throws IOException {
         initComponents();
         setTitle("CloudBox");
         

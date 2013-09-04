@@ -24,9 +24,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.UIManager;
 
-public class GUIFacade extends AModule {
+public class GUIModule extends AModule {
     private MainFrame m_mainFrame;
-    static private String ms_strPkgName =GUIFacade.class.getPackage().getName();
+    static private String ms_strPkgName =GUIModule.class.getPackage().getName();
     
     @Override
     public void start() {
@@ -34,7 +34,7 @@ public class GUIFacade extends AModule {
             m_mainFrame = new MainFrame(m_properties, this);
             java.awt.EventQueue.invokeLater(  m_mainFrame );
         } catch (IOException ex) {
-            Logger.getLogger(GUIFacade.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(GUIModule.class.getName()).log(Level.SEVERE, null, ex);
         }
         
     }
